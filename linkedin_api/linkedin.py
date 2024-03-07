@@ -1526,14 +1526,14 @@ class Linkedin(object):
 
         return data
 
-    def get_open_connection_requests(self):
+    def _get_open_connection_requests(self):
         """
         Fetch open connection requests
 
         :return: linkedin urls of requested profiles
         :rtype: list
         """
-        res = self._fetch('graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
+        res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
                           '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
 
         connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
@@ -1556,4 +1556,4 @@ class Linkedin(object):
         :rtype: boolean
         """
 
-        return li_url not in self.get_open_connection_requests()
+        return li_url not in self._get_open_connection_requests()

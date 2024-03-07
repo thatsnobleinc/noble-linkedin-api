@@ -24,8 +24,18 @@ if not (
 
 @pytest.fixture(scope="module")
 def linkedin():
+
+    proxies={
+    # "http": "http://t1q3o:kmkyo757@169.197.83.74:6006",
+    # "https": "http://t1q3o:kmkyo757@169.197.83.74:6006",
+    }
+
+    j_session_id = "ajax:0835618877918092985"
+    li_at = "AQEDASd3X2UFAQDuAAABjhq6L74AAAGOPsazvk4AKFZc-Nlu5c-FthZwQtOGAoPsafOYi98-XHxdVIQTpqaSg8rsK_yCRx9dPZH5O75ryQwFCXO5LH4SN0qt_X1k36E0ZVJlDCqKEujlo60Ey4lOHpYe"
+    cookies = {"li_at": li_at, "JSESSIONID": j_session_id}
+
     return Linkedin(
-        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, refresh_cookies=True
+        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies
     )
 
 
@@ -190,9 +200,9 @@ def test_search_jobs(linkedin):
     # remote -> onsite:"1", remote:"2", hybrid:"3"
     # listed_at -> large number 1000000 seconds
     jobs = linkedin.search_jobs(
-        keywords="software engineer", 
+        keywords="software engineer",
         location_name="San Francisco",
-        companies=["1441","162479"], 
+        companies=["1441","162479"],
         experience=["1","2","3","4","5","6"],
         job_type=["F","C","P","T","I","V","O"],
         job_title=["9","30006"],
@@ -206,7 +216,7 @@ def test_search_jobs(linkedin):
 
     # Test that no results doesn't return an infinite loop
     jobs = linkedin.search_jobs(
-        keywords="blurp", 
+        keywords="blurp",
         location_name="antarctica"
     )
     assert len(jobs)==0
@@ -214,7 +224,7 @@ def test_search_jobs(linkedin):
 
 def test_get_job(linkedin):
     jobs = linkedin.search_jobs(
-        keywords="software engineer", 
+        keywords="software engineer",
         limit=1
     )
     job_id = get_id_from_urn(jobs[0]["trackingUrn"])
@@ -320,3 +330,16 @@ def test_get_feed_posts_posts_keys(linkedin):
 def test_get_feed_posts_urns_contains_no_duplicated(linkedin):
     l_posts, l_urns = linkedin._get_list_feed_posts_and_list_feed_urns(101)
     assert len(set([x for x in l_urns if l_urns.count(x) > 1])) == 0
+
+
+def test_is_request_accepted(linkedin):
+    unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup', 'https://www.linkedin.com/in/igormpore']
+    accepted_invites = ['randompersonnotinmyinviationlist']
+
+    for invite in unaccepted_invites:
+        is_accepted = linkedin.is_request_accepted(invite)
+        assert not is_accepted
+
+    for invite in accepted_invites:
+        is_accepted = linkedin.is_request_accepted(invite)
+        assert is_accepted
