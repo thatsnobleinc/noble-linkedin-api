@@ -23,38 +23,31 @@ class Client(object):
     # Settings for general Linkedin API calls
     LINKEDIN_BASE_URL = "https://www.linkedin.com"
     API_BASE_URL = f"{LINKEDIN_BASE_URL}/voyager/api"
-    REQUEST_HEADERS = {
-        "user-agent": " ".join(
-            [
-                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5)",
-                "AppleWebKit/537.36 (KHTML, like Gecko)",
-                "Chrome/83.0.4103.116 Safari/537.36",
-            ]
-        ),
-        # "accept": "application/vnd.linkedin.normalized+json+2.1",
-        "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
-        "x-li-lang": "en_US",
-        "x-restli-protocol-version": "2.0.0",
-        # "x-li-track": '{"clientVersion":"1.2.6216","osName":"web","timezoneOffset":10,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
-    }
+    # REQUEST_HEADERS = {
+    #     "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.33 Safari/537.36",
+    #     # "accept": "application/vnd.linkedin.normalized+json+2.1",
+    #     "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+    #     "x-li-lang": "en_US",
+    #     "x-restli-protocol-version": "2.0.0",
+    #     # "x-li-track": '{"clientVersion":"1.2.6216","osName":"web","timezoneOffset":10,"deviceFormFactor":"DESKTOP","mpName":"voyager-web"}',
+    # }
 
-    # Settings for authenticating with Linkedin
-    AUTH_REQUEST_HEADERS = {
-        "X-Li-User-Agent": "LIAuthLibrary:3.2.4 \
-                            com.linkedin.LinkedIn:8.8.1 \
-                            iPhone:8.3",
-        "User-Agent": "LinkedIn/8.8.1 CFNetwork/711.3.18 Darwin/14.0.0",
-        "X-User-Language": "en",
-        "X-User-Locale": "en_US",
-        "Accept-Language": "en-us",
-    }
+    # AUTH_REQUEST_HEADERS = {
+    #     "X-Li-User-Agent": "LIAuthLibrary:3.2.4 \
+    #                         com.linkedin.LinkedIn:8.8.1 \
+    #                         iPhone:8.3",
+    #     "User-Agent": "LinkedIn/8.8.1 CFNetwork/711.3.18 Darwin/14.0.0",
+    #     "X-User-Language": "en",
+    #     "X-User-Locale": "en_US",
+    #     "Accept-Language": "en-us",
+    # }
 
     def __init__(
-        self, *, debug=False, refresh_cookies=False, proxies={}, cookies_dir=None
+        self, headers, proxies, *, debug=False, refresh_cookies=False, cookies_dir=None
     ):
         self.session = requests.session()
         self.session.proxies.update(proxies)
-        self.session.headers.update(Client.REQUEST_HEADERS)
+        self.session.headers.update(headers)
         self.proxies = proxies
         self.logger = logger
         self.metadata = {}
@@ -71,17 +64,17 @@ class Client(object):
 
         res = requests.get(
             f"{Client.LINKEDIN_BASE_URL}/uas/authenticate",
-            headers=Client.AUTH_REQUEST_HEADERS,
+            headers=self.session.headers, #Client.AUTH_REQUEST_HEADERS,
             proxies=self.proxies,
         )
         return res.cookies
 
-    def _set_session_cookies(self, cookies):
+    def set_session_cookies(self, cookies):
         """
         Set cookies of the current session and save them to a file named as the username.
         """
         self.session.cookies.update(cookies)
-        self.session.headers["csrf-token"] = self.session.cookies["JSESSIONID"].strip('"')
+        #self.session.headers["csrf-token"] = self.session.cookies["JSESSIONID"].strip('"')
 
 
     @property
@@ -94,7 +87,7 @@ class Client(object):
             cookies = self._cookie_repository.get(username)
             if cookies:
                 self.logger.debug("Using cached cookies")
-                self._set_session_cookies(cookies)
+                self.set_session_cookies(cookies)
                 self._fetch_metadata()
                 return
 
@@ -110,7 +103,7 @@ class Client(object):
         res = requests.get(
             f"{Client.LINKEDIN_BASE_URL}",
             cookies=self.session.cookies,
-            headers=Client.AUTH_REQUEST_HEADERS,
+            headers=self.session.headers,
             proxies=self.proxies,
         )
 
@@ -139,7 +132,7 @@ class Client(object):
 
         Return a session object that is authenticated.
         """
-        self._set_session_cookies(self._request_session_cookies())
+        self.set_session_cookies(self._request_session_cookies())
 
         payload = {
             "session_key": username,
@@ -151,7 +144,7 @@ class Client(object):
             f"{Client.LINKEDIN_BASE_URL}/uas/authenticate",
             data=payload,
             cookies=self.session.cookies,
-            headers=Client.AUTH_REQUEST_HEADERS,
+            headers=self.session.headers, #Client.AUTH_REQUEST_HEADERS,
             proxies=self.proxies,
         )
 

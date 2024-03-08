@@ -11,6 +11,14 @@ TEST_PROFILE_ID = os.getenv("TEST_PROFILE_ID")
 TEST_PUBLIC_PROFILE_ID = os.getenv("TEST_PUBLIC_PROFILE_ID")
 TEST_CONVERSATION_ID = os.getenv("TEST_CONVERSATION_ID")
 
+REQUEST_HEADERS = {
+    "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.33 Safari/537.36",
+    "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+    "x-li-lang": "en_US",
+    "x-restli-protocol-version": "2.0.0",
+    "csrf-token": "ajax:0835618877918092985",
+}
+
 if not (
     TEST_LINKEDIN_USERNAME
     and TEST_LINKEDIN_PASSWORD
@@ -35,7 +43,7 @@ def linkedin():
     cookies = {"li_at": li_at, "JSESSIONID": j_session_id}
 
     return Linkedin(
-        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies
+        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies, headers=REQUEST_HEADERS
     )
 
 
