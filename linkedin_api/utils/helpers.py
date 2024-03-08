@@ -257,3 +257,15 @@ def generate_trackingId():
     random_int_array = [random.randrange(256) for _ in range(16)]
     rand_byte_array = bytearray(random_int_array)
     return str(base64.b64encode(rand_byte_array))[2:-1]
+
+
+def format_li_url(li_url):
+    if li_url is not None:
+        if li_url[-1] != '/':
+            li_url = li_url + '/'
+
+        if 'https' not in li_url:
+            latter_part = li_url.split('://')[1]
+            li_url = 'https://' + latter_part
+
+    return li_url

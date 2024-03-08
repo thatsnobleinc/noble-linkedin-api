@@ -24,7 +24,7 @@ from linkedin_api.utils.helpers import (
     parse_list_raw_posts,
     parse_list_raw_urns,
     generate_trackingId,
-    generate_trackingId_as_charString,
+    generate_trackingId_as_charString, format_li_url,
 )
 
 logger = logging.getLogger(__name__)
@@ -1516,34 +1516,33 @@ class Linkedin(object):
 
         return data
 
-    def _get_open_connection_requests(self):
+    def is_request_accepted(self, requested_li_url):
         """
-        Fetch open connection requests
+        Check if a request to requested_li_url is accepted
 
-        :return: linkedin urls of requested profiles
-        :rtype: list
-        """
-        res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
-                          '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
-
-        connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
-
-        li_urls = []
-        for connection_request in connection_requests:
-            url = connection_request['cardActionTarget']
-            li_urls.append(url)
-
-        return li_urls
-
-    def is_request_accepted(self, li_url):
-        """
-        Check if a request to li_url is accepted
-
-        :param li_url: linkedin profile url that a request was sent to
-        :type li_url: str
+        :param requested_li_url: linkedin profile url that a request was sent to
+        :type requested_li_url: str
 
         :return: is request accepted
         :rtype: boolean
         """
 
-        return li_url not in self._get_open_connection_requests()
+        res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
+                          '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
+
+        connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
+
+        if len(connection_requests) == 0:
+            self.logger.info("No connections in list, returning True")
+            return True
+
+        for connection_request in connection_requests:
+            self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
+            url = connection_request['cardActionTarget']
+
+            if format_li_url(requested_li_url) == format_li_url(url):
+                return False
+
+        self.logger.info('Connection not found in pending list, returning True')
+        return True
+

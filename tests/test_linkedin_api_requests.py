@@ -341,8 +341,8 @@ def test_get_feed_posts_urns_contains_no_duplicated(linkedin):
 
 
 def test_is_request_accepted(linkedin):
-    unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup', 'https://www.linkedin.com/in/igormpore']
-    accepted_invites = ['randompersonnotinmyinviationlist']
+    unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
+    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/']
 
     for invite in unaccepted_invites:
         is_accepted = linkedin.is_request_accepted(invite)
