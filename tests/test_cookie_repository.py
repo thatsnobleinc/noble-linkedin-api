@@ -1,10 +1,7 @@
-import os
-import sys
-import pytest
 import requests
 from datetime import datetime
 
-from linkedin_api.cookie_repository import (
+from src.linkedin_api import (
     CookieRepository,
     LinkedinSessionExpired,
 )
