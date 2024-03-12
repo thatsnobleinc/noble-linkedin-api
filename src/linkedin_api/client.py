@@ -43,7 +43,7 @@ class Client(object):
     # }
 
     def __init__(
-        self, headers, proxies, *, debug=False, refresh_cookies=False, cookies_dir=None
+        self, headers, proxies, cookies, *, debug=False, refresh_cookies=False, cookies_dir=None
     ):
         self.session = requests.session()
         self.session.proxies.update(proxies)
@@ -53,6 +53,7 @@ class Client(object):
         self.metadata = {}
         self._use_cookie_cache = not refresh_cookies
         self._cookie_repository = CookieRepository(cookies_dir=cookies_dir)
+        self.set_session_cookies(cookies)
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
@@ -74,7 +75,6 @@ class Client(object):
         Set cookies of the current session and save them to a file named as the username.
         """
         self.session.cookies.update(cookies)
-        #self.session.headers["csrf-token"] = self.session.cookies["JSESSIONID"].strip('"')
 
 
     @property

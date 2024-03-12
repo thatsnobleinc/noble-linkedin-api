@@ -40,15 +40,12 @@ class Linkedin(object):
 
     def __init__(
         self,
-        username,
-        password,
         proxies,
         headers,
+        cookies,
         *,
-        authenticate=True,
         refresh_cookies=False,
         debug=False,
-        cookies=None,
         cookies_dir=None,
     ):
         """Constructor method"""
@@ -57,19 +54,11 @@ class Linkedin(object):
             debug=debug,
             proxies=proxies,
             cookies_dir=cookies_dir,
-            headers=headers
+            headers=headers,
+            cookies=cookies
         )
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
-        self.logger = logger
-
-        if authenticate:
-            if cookies:
-                # If the cookies are expired, the API won't work anymore since
-                # `username` and `password` are not used at all in this case.
-                self.client.set_session_cookies(cookies)
-            else:
-                self.client.authenticate(username, password)
 
     def _fetch(self, uri, base_request=False, **kwargs):
         """GET request to Linkedin API"""
