@@ -39,11 +39,11 @@ def linkedin():
     }
 
     j_session_id = "ajax:0835618877918092985"
-    li_at = "AQEDASd3X2UFAQDuAAABjhq6L74AAAGOPsazvk4AKFZc-Nlu5c-FthZwQtOGAoPsafOYi98-XHxdVIQTpqaSg8rsK_yCRx9dPZH5O75ryQwFCXO5LH4SN0qt_X1k36E0ZVJlDCqKEujlo60Ey4lOHpYe"
+    li_at = "AQEDASd3X2UEEywzAAABjh7Zw8YAAAGOQuZHxk0AwX_mf3WkTMBa3XKY7Or2UqdtXOEmC5hQXkHCKzT1Af2Iam3tP67B-lXjsDzck44EfpxO8E-w62lz5ykolFQtQ0AZAkh_-EORj8fC1GsodsdfAPkC"
     cookies = {"li_at": li_at, "JSESSIONID": j_session_id}
 
     return Linkedin(
-        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies, headers=REQUEST_HEADERS
+        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies, headers=REQUEST_HEADERS, debug=True
     )
 
 
