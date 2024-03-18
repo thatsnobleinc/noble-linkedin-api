@@ -42,15 +42,22 @@ class Linkedin(object):
 
     def __init__(
         self,
-        proxies,
+        proxy_string,
         j_session_id,
         user_agent,
-        cookies,
+        session_cookie,
         *,
         refresh_cookies=False,
         debug=False,
         cookies_dir=None,
     ):
+
+        cookies = {"li_at": session_cookie, "JSESSIONID": j_session_id}
+
+        proxies = {
+            'http': f'http://{proxy_string}',
+            'https': f'http://{proxy_string}'
+        }
 
         headers = {
             "user-agent": user_agent,
