@@ -64,7 +64,7 @@ class Linkedin(object):
             "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
             "x-li-lang": "en_US",
             "x-restli-protocol-version": "2.0.0",
-            "csrf-token": j_session_id
+            "csrf-token": j_session_id.strip('"')
         }
 
         """Constructor method"""
@@ -1530,8 +1530,6 @@ class Linkedin(object):
 
         res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
                           '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
-
-        self.logger.info(res)
 
         connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
 
