@@ -1538,10 +1538,10 @@ class Linkedin(object):
             return True
 
         for connection_request in connection_requests:
-            self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
             url = connection_request['cardActionTarget']
 
             if format_li_url(requested_li_url) == format_li_url(url):
+                self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
                 return False
 
         self.logger.info('Connection not found in pending list, returning True')
