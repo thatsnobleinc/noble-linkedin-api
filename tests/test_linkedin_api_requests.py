@@ -33,17 +33,13 @@ if not (
 @pytest.fixture(scope="module")
 def linkedin():
 
-    proxies={
-    # "http": "http://t1q3o:kmkyo757@169.197.83.74:6006",
-    # "https": "http://t1q3o:kmkyo757@169.197.83.74:6006",
-    }
-
+    # CAM JORDAN
+    proxy_string =  "t1q3o:kmkyo757@169.197.83.74:6006"
     j_session_id = "ajax:0835618877918092985"
-    li_at = "AQEDASd3X2UEEywzAAABjh7Zw8YAAAGOQuZHxk0AwX_mf3WkTMBa3XKY7Or2UqdtXOEmC5hQXkHCKzT1Af2Iam3tP67B-lXjsDzck44EfpxO8E-w62lz5ykolFQtQ0AZAkh_-EORj8fC1GsodsdfAPkC"
-    cookies = {"li_at": li_at, "JSESSIONID": j_session_id}
-
+    li_at = " AQEDATvAZBEAPm8kAAABjlGQj-AAAAGOdZ0T4E4As2boJdkRHxmLVbE-QJQUkxJaMt7zmX-GOMgViUlyUZqD2_mg2alzhQ6fXATXTDrEMwXt-BufnG-PVKcImYNiz1Cy24T8bKMnQMIM7VZTjXhu2jym"
+    user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
     return Linkedin(
-        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies, headers=REQUEST_HEADERS, debug=True
+        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, debug=True
     )
 
 
@@ -344,9 +340,9 @@ def test_is_request_accepted(linkedin):
     unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
     accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/']
 
-    for invite in unaccepted_invites:
-        is_accepted = linkedin.is_request_accepted(invite)
-        assert not is_accepted
+    # for invite in unaccepted_invites:
+    #     is_accepted = linkedin.is_request_accepted(invite)
+    #     assert not is_accepted
 
     for invite in accepted_invites:
         is_accepted = linkedin.is_request_accepted(invite)

@@ -78,6 +78,7 @@ class Linkedin(object):
         )
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+        self.logger = logger
 
     def _fetch(self, uri, base_request=False, **kwargs):
         """GET request to Linkedin API"""
