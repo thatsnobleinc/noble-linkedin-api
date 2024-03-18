@@ -8,8 +8,8 @@ from operator import itemgetter
 from time import time
 from urllib.parse import urlencode
 
-from src.linkedin_api.client import Client
-from src.linkedin_api.utils.helpers import (
+from src.noble_linkedin_api.client import Client
+from src.noble_linkedin_api.utils.helpers import (
     get_id_from_urn,
     get_urn_from_raw_update,
     get_list_posts_sorted_without_promoted,

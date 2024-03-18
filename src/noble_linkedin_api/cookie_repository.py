@@ -1,7 +1,7 @@
 import os
 import pickle
 import time
-from src import linkedin_api as settings
+from src import noble_linkedin_api as settings
 
 
 class Error(Exception):

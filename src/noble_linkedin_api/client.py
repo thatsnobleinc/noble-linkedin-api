@@ -1,6 +1,6 @@
 import requests
 import logging
-from src.linkedin_api.cookie_repository import CookieRepository
+from src.noble_linkedin_api.cookie_repository import CookieRepository
 from bs4 import BeautifulSoup
 import json
 

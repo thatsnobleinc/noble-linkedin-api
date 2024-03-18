@@ -2,8 +2,8 @@ import os
 import sys
 import pytest
 
-from src.linkedin_api import Linkedin
-from src.linkedin_api.utils.helpers import get_id_from_urn
+from src.noble_linkedin_api import Linkedin
+from src.noble_linkedin_api.utils.helpers import get_id_from_urn
 
 TEST_LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME")
 TEST_LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD")

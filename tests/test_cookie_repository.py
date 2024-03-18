@@ -1,7 +1,7 @@
 import requests
 from datetime import datetime
 
-from src.linkedin_api import (
+from src.noble_linkedin_api import (
     CookieRepository,
     LinkedinSessionExpired,
 )

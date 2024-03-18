@@ -1,7 +1,7 @@
 import pytest
 import os
 import sys
-from src.linkedin_api import Client
+from src.noble_linkedin_api import Client
 
 TEST_LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME")
 TEST_LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD")
