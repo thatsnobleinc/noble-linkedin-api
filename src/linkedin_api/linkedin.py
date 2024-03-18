@@ -38,16 +38,28 @@ class Linkedin(object):
         200  # VERY conservative max requests count to avoid rate-limit
     )
 
+
+
     def __init__(
         self,
         proxies,
-        headers,
+        j_session_id,
+        user_agent,
         cookies,
         *,
         refresh_cookies=False,
         debug=False,
         cookies_dir=None,
     ):
+
+        headers = {
+            "user-agent": user_agent,
+            "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "x-li-lang": "en_US",
+            "x-restli-protocol-version": "2.0.0",
+            "csrf-token": j_session_id
+        }
+
         """Constructor method"""
         self.client = Client(
             refresh_cookies=refresh_cookies,
