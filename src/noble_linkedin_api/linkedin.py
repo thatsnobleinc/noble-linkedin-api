@@ -1531,6 +1531,8 @@ class Linkedin(object):
         res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
                           '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
 
+        self.logger.info(res)
+
         connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
 
         if len(connection_requests) == 0:
