@@ -1517,33 +1517,72 @@ class Linkedin(object):
 
         return data
 
-    def is_request_accepted(self, requested_li_url):
+    # def is_request_accepted(self, requested_li_url):
+    #     """
+    #     Check if a request to requested_li_url is accepted
+    #
+    #     :param requested_li_url: linkedin profile url that a request was sent to
+    #     :type requested_li_url: str
+    #
+    #     :return: is request accepted
+    #     :rtype: boolean
+    #     """
+    #
+    #     res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
+    #                       '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
+    #
+    #     connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
+    #
+    #     if len(connection_requests) == 0:
+    #         self.logger.info("No connections in list, returning True")
+    #         return True
+    #
+    #     for connection_request in connection_requests:
+    #         url = connection_request['cardActionTarget']
+    #
+    #         if format_li_url(requested_li_url) == format_li_url(url):
+    #             self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
+    #             return False
+    #
+    #     self.logger.info('Connection not found in pending list, returning True')
+    #     return True
+
+
+    def is_request_accepted(self, urn_id, search_first_name, search_last_name, li_url):
+        """Fetch first-degree connections for a given LinkedIn profile.
+
+        :param urn_id: LinkedIn URN ID for a profile
+        :type urn_id: str
+
+        :return: List of search results
+        :rtype: list
         """
-        Check if a request to requested_li_url is accepted
 
-        :param requested_li_url: linkedin profile url that a request was sent to
-        :type requested_li_url: str
+        # TODO: what if multiple results returned? how can we verifyh the person is the right one?
+        # can we return returned urn into a public id and cross referecne with li url?
 
-        :return: is request accepted
-        :rtype: boolean
-        """
+        # TODO: get public id from li_url
+        public_id = 'james-coll-9198b7165'
 
-        res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
-                          '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
 
-        connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
+        results = self.search_people(connection_of=urn_id, network_depth="F", keyword_first_name=search_first_name, keyword_last_name=search_last_name)
 
-        if len(connection_requests) == 0:
-            self.logger.info("No connections in list, returning True")
-            return True
+        if len(results) == 0:
+            self.logger.info("{} {} has not accepted the connection request".format(search_first_name, search_last_name))
+            return False
+        else:
+            # Loop through the results and verify public ids match in case multiple people with same name are returned
+            for result in results:
+                result_urn_id = result['urn_id']
+                profile = self.get_profile(result_urn_id)
 
-        for connection_request in connection_requests:
-            url = connection_request['cardActionTarget']
+                if public_id == profile['public_id']:
+                    return True
+                else:
+                    continue
 
-            if format_li_url(requested_li_url) == format_li_url(url):
-                self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
-                return False
+            return False
 
-        self.logger.info('Connection not found in pending list, returning True')
-        return True
+
+
 

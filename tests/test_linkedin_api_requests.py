@@ -337,13 +337,22 @@ def test_get_feed_posts_urns_contains_no_duplicated(linkedin):
 
 
 def test_is_request_accepted(linkedin):
-    unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
-    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/', 'https://www.linkedin.com/in/james-coll-9198b7165/' ]
-
-    # for invite in unaccepted_invites:
+    # unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
+    # accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/', 'https://www.linkedin.com/in/james-coll-9198b7165/' ]
+    #
+    # # for invite in unaccepted_invites:
+    # #     is_accepted = linkedin.is_request_accepted(invite)
+    # #     assert not is_accepted
+    #
+    # for invite in accepted_invites:
     #     is_accepted = linkedin.is_request_accepted(invite)
-    #     assert not is_accepted
+    #     assert is_accepted
 
-    for invite in accepted_invites:
-        is_accepted = linkedin.is_request_accepted(invite)
-        assert is_accepted
+    profile = linkedin.get_profile('cameron-jordan-95588123b')
+    urn_id = profile["profile_id"]
+
+    is_accepted = linkedin.is_request_accepted(urn_id, 'James', 'Coll', 'https://www.linkedin.com/in/james-coll-9198b7165/')
+    assert is_accepted
+
+
+
