@@ -38,8 +38,11 @@ def linkedin():
     j_session_id = "ajax:0835618877918092985"
     li_at = " AQEDATvAZBEAPm8kAAABjlGQj-AAAAGOdZ0T4E4As2boJdkRHxmLVbE-QJQUkxJaMt7zmX-GOMgViUlyUZqD2_mg2alzhQ6fXATXTDrEMwXt-BufnG-PVKcImYNiz1Cy24T8bKMnQMIM7VZTjXhu2jym"
     user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
+    profile_url='https://www.linkedin.com/in/cameron-jordan-95588123b/'
+
     return Linkedin(
-        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, debug=True
+        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent,
+        profile_url=profile_url, debug=True
     )
 
 
@@ -348,7 +351,7 @@ def test_is_request_accepted(linkedin):
     #     is_accepted = linkedin.is_request_accepted(invite)
     #     assert is_accepted
 
-    is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b/', 'james', 'Coll', 'https://www.linkedin.com/in/james-coll-9198b7165')
+    is_accepted = linkedin.is_request_accepted('james', 'Coll', 'https://www.linkedin.com/in/james-coll-9198b7165')
     assert is_accepted
 
     # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b', 'jAson', 'WiDUP', 'https://www.linkedin.com/in/jasonwidup/')

@@ -45,6 +45,7 @@ class Linkedin(object):
             j_session_id,
             user_agent,
             session_cookie,
+            profile_url,
             *,
             refresh_cookies=False,
             debug=False,
@@ -75,6 +76,10 @@ class Linkedin(object):
             headers=headers,
             cookies=cookies
         )
+
+        public_id = extract_public_id_from_url(profile_url)
+        profile = self.get_profile(public_id)
+        self.urn_id = profile["profile_id"]
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
         self.logger = logger
@@ -1546,28 +1551,29 @@ class Linkedin(object):
     #     self.logger.info('Connection not found in pending list, returning True')
     #     return True
 
-    def is_request_accepted(self, li_url, search_first_name, search_last_name, requested_li_url):
+    def is_request_accepted(self, first_name, last_name, li_url):
         """Fetch first-degree connections for a given LinkedIn profile.
 
-        :param urn_id: LinkedIn URN ID for a profile
+        :param first_name: First name of requested user
+        :type first_name: str
 
-        :type urn_id: str
+        :param last_name: Last name of requested user
+        :type last_name: str
 
-        :return: List of search results
-        :rtype: list
+        :param li_url: linkedin url of requested user
+        :type li_url: str
+
+        :return: True if a connection exists, False if not
+        :rtype: boolean
         """
 
-        public_id = extract_public_id_from_url(li_url)
-        profile = self.get_profile(public_id)
-        urn_id = profile["profile_id"]
-
-        requested_public_id = extract_public_id_from_url(requested_li_url)
-        results = self.search_people(connection_of=urn_id, network_depth="F", keyword_first_name=search_first_name,
-                                     keyword_last_name=search_last_name)
+        requested_public_id = extract_public_id_from_url(li_url)
+        results = self.search_people(connection_of=self.urn_id, network_depth="F", keyword_first_name=first_name,
+                                     keyword_last_name=last_name)
 
         if len(results) == 0:
             self.logger.info(
-                "{} {} has not accepted the connection request".format(search_first_name, search_last_name))
+                "{} {} has not accepted the connection request".format(first_name, last_name))
             return False
         else:
             # Loop through the results and verify public ids match in case multiple people with same name are returned
