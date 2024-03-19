@@ -9,7 +9,7 @@ authors = [
   { name="James Coll", email="james@thatsnoble.com" },
 ]
 description = "Wrapper for linkedin voyager requests"
-requires-python = ">=3.9"
+requires-python = ">=3.8.10"
 dependencies = [
     "asttokens==2.4.1",
     "beautifulsoup4==4.12.3",
