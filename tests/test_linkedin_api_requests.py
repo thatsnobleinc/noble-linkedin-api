@@ -38,8 +38,11 @@ def linkedin():
     j_session_id = "ajax:0835618877918092985"
     li_at = " AQEDATvAZBEAPm8kAAABjlGQj-AAAAGOdZ0T4E4As2boJdkRHxmLVbE-QJQUkxJaMt7zmX-GOMgViUlyUZqD2_mg2alzhQ6fXATXTDrEMwXt-BufnG-PVKcImYNiz1Cy24T8bKMnQMIM7VZTjXhu2jym"
     user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
+    profile_url='https://www.linkedin.com/in/cameron-jordan-95588123b/'
+
     return Linkedin(
-        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, debug=True
+        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent,
+        profile_url=profile_url, debug=True
     )
 
 
@@ -337,13 +340,27 @@ def test_get_feed_posts_urns_contains_no_duplicated(linkedin):
 
 
 def test_is_request_accepted(linkedin):
-    unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
-    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/', 'https://www.linkedin.com/in/james-coll-9198b7165/' ]
-
-    # for invite in unaccepted_invites:
+    # unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
+    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/', 'https://www.linkedin.com/in/james-coll-9198b7165/', 'https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/' ]
+    #
+    # # for invite in unaccepted_invites:
+    # #     is_accepted = linkedin.is_request_accepted(invite)
+    # #     assert not is_accepted
+    #
+    # for invite in accepted_invites:
     #     is_accepted = linkedin.is_request_accepted(invite)
-    #     assert not is_accepted
+    #     assert is_accepted
 
-    for invite in accepted_invites:
-        is_accepted = linkedin.is_request_accepted(invite)
-        assert is_accepted
+    is_accepted = linkedin.is_request_accepted('james', 'Coll', 'https://www.linkedin.com/in/james-coll-9198b7165')
+    assert is_accepted
+
+    # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b', 'jAson', 'WiDUP', 'https://www.linkedin.com/in/jasonwidup/')
+    # assert is_accepted
+    #
+    # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b', 'Josh', 'Budman', 'https://www.linkedin.com/in/joshua-budman-7496b933')
+    # assert is_accepted
+    #
+    # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b/', 'Igor', 'Mpore', 'https://www.linkedin.com/in/igormpore/')
+    # assert not is_accepted
+
+
