@@ -1521,6 +1521,8 @@ class Linkedin(object):
 
         return data
 
+
+    # TODO: fix this logic - if request isn't actually sent, there will be a false positive
     def is_request_accepted(self, requested_li_url):
         """
         Check if a request to requested_li_url is accepted
