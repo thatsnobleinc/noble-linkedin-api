@@ -53,10 +53,15 @@ class Linkedin(object):
 
         cookies = {"li_at": session_cookie, "JSESSIONID": j_session_id}
 
-        proxies = {
-            'http': f'http://{proxy_string}',
-            'https': f'http://{proxy_string}'
-        }
+        if '@' in proxy_string:
+            proxies = {
+                'http': f'http://{proxy_string}',
+                'https': f'http://{proxy_string}'
+            }
+        else:
+            proxies = {
+                'http': f'http://{proxy_string}'
+            }
 
         headers = {
             "user-agent": user_agent,
