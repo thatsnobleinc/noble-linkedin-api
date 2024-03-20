@@ -42,7 +42,7 @@ def linkedin():
     # Elijiah Perez
     proxy_string =  "proxy-server1.mirrorprofiles.com:8080"
     j_session_id = '"ajax:0962794415086379039"'
-    li_at = "AQEDAQcLc-kBL9ngAAABjlbhrogAAAGOeu4yiE4AS7XBqBF3pzlBCk6HBIjsVL1EtGzOfuovS0CE5iGlmvRbHrr0jq6JbYrQqL72onjvCWihM2Ul1NxXwROLonLIBpoHxEPuufYuYmVLCN0IbrgnF_Xy"
+    li_at = "AQEDAUgtEWEBp4n-AAABjSJ8npIAAAGOdVYJiU4AcYs7aZlIIua3jQecGPV_uLAXTjwWoD78AJxutaybP2bmmBnMYqOusEHQDF43juE6zJxHcT4ISij77bSfeYiZjVsKfESWnZxQ06Hzu6hq5hfMcU__"
     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
 
     return Linkedin(
