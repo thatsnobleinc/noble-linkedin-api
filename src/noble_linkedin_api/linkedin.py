@@ -296,7 +296,7 @@ class Linkedin(object):
             schools=None,
             contact_interests=None,
             service_categories=None,
-            include_private_profiles=True,  # profiles without a public id, "Linkedin Member"
+            include_private_profiles=False,  # profiles without a public id, "Linkedin Member"
             # Keywords filter
             keyword_first_name=None,
             keyword_last_name=None,
@@ -332,7 +332,7 @@ class Linkedin(object):
         :type network_depth: str, optional
         :param network_depths: A list containing one or many of "F", "S" and "O" (first, second and third+ respectively)
         :type network_depths: list, optional
-        :param include_private_profiles: Include private profiles in search results. If False, only public profiles are included. Defaults to True
+        :param include_private_profiles: Include private profiles in search results. If False, only public profiles are included. Defaults to False
         :type include_private_profiles: boolean, optional
         :param keyword_first_name: First name
         :type keyword_first_name: str, optional
@@ -782,7 +782,7 @@ class Linkedin(object):
 
         return profile
 
-    def get_profile_connections(self):
+    def get_profile_connections(self, urn_id):
         """Fetch first-degree connections for a given LinkedIn profile.
 
         :param urn_id: LinkedIn URN ID for a profile
@@ -791,7 +791,7 @@ class Linkedin(object):
         :return: List of search results
         :rtype: list
         """
-        return self.search_people(connection_of=self.urn_id, network_depth="F")
+        return self.search_people(connection_of=urn_id, network_depth="F")
 
     def get_company_updates(
             self, public_id=None, urn_id=None, max_results=None, results=None
