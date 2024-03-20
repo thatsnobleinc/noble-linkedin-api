@@ -45,7 +45,6 @@ class Linkedin(object):
             j_session_id,
             user_agent,
             session_cookie,
-            profile_url,
             *,
             refresh_cookies=False,
             debug=False,
@@ -76,10 +75,6 @@ class Linkedin(object):
             headers=headers,
             cookies=cookies
         )
-
-        public_id = extract_public_id_from_url(profile_url)
-        profile = self.get_profile(public_id)
-        self.urn_id = profile["profile_id"]
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
         self.logger = logger
@@ -1521,69 +1516,69 @@ class Linkedin(object):
 
         return data
 
-    # def is_request_accepted(self, requested_li_url):
-    #     """
-    #     Check if a request to requested_li_url is accepted
-    #
-    #     :param requested_li_url: linkedin profile url that a request was sent to
-    #     :type requested_li_url: str
-    #
-    #     :return: is request accepted
-    #     :rtype: boolean
-    #     """
-    #
-    #     res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
-    #                       '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
-    #
-    #     connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
-    #
-    #     if len(connection_requests) == 0:
-    #         self.logger.info("No connections in list, returning True")
-    #         return True
-    #
-    #     for connection_request in connection_requests:
-    #         url = connection_request['cardActionTarget']
-    #
-    #         if format_li_url(requested_li_url) == format_li_url(url):
-    #             self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
-    #             return False
-    #
-    #     self.logger.info('Connection not found in pending list, returning True')
-    #     return True
+    def is_request_accepted(self, requested_li_url):
+        """
+        Check if a request to requested_li_url is accepted
 
-    def is_request_accepted(self, first_name, last_name, li_url):
-        """Fetch first-degree connections for a given LinkedIn profile.
+        :param requested_li_url: linkedin profile url that a request was sent to
+        :type requested_li_url: str
 
-        :param first_name: First name of requested user
-        :type first_name: str
-
-        :param last_name: Last name of requested user
-        :type last_name: str
-
-        :param li_url: linkedin url of requested user
-        :type li_url: str
-
-        :return: True if a connection exists, False if not
+        :return: is request accepted
         :rtype: boolean
         """
 
-        requested_public_id = extract_public_id_from_url(li_url)
-        results = self.search_people(connection_of=self.urn_id, network_depth="F", keyword_first_name=first_name,
-                                     keyword_last_name=last_name)
+        res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
+                          '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
 
-        if len(results) == 0:
-            self.logger.info(
-                "{} {} has not accepted the connection request".format(first_name, last_name))
-            return False
-        else:
-            # Loop through the results and verify public ids match in case multiple people with same name are returned
-            for result in results:
-                result_urn_id = result['urn_id']
-                profile = self.get_profile(result_urn_id)
+        connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
 
-                if requested_public_id == profile['public_id']:
-                    return True
-                else:
-                    continue
+        if len(connection_requests) == 0:
+            self.logger.info("No connections in list, returning True")
+            return True
 
-            return False
+        for connection_request in connection_requests:
+            url = connection_request['cardActionTarget']
+
+            if format_li_url(requested_li_url) == format_li_url(url):
+                self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
+                return False
+
+        self.logger.info('Connection not found in pending list, returning True')
+        return True
+
+    # def is_request_accepted(self, first_name, last_name, li_url):
+    #     """Fetch first-degree connections for a given LinkedIn profile.
+    #
+    #     :param first_name: First name of requested user
+    #     :type first_name: str
+    #
+    #     :param last_name: Last name of requested user
+    #     :type last_name: str
+    #
+    #     :param li_url: linkedin url of requested user
+    #     :type li_url: str
+    #
+    #     :return: True if a connection exists, False if not
+    #     :rtype: boolean
+    #     """
+    #
+    #     requested_public_id = extract_public_id_from_url(li_url)
+    #     results = self.search_people(connection_of=self.urn_id, network_depth="F", keyword_first_name=first_name,
+    #                                  keyword_last_name=last_name)
+    #
+    #     if len(results) == 0:
+    #         self.logger.info(
+    #             "{} {} has not accepted the connection request".format(first_name, last_name))
+    #         return False
+    #     else:
+    #         # Loop through the results and verify public ids match in case multiple people with same name are returned
+    #         for result in results:
+    #             result_urn_id = result['urn_id']
+    #             profile = self.get_profile(result_urn_id)
+    #
+    #             if requested_public_id == profile['public_id']:
+    #                 return True
+    #             else:
+    #                 continue
+    #
+    #         return False
