@@ -53,10 +53,15 @@ class Linkedin(object):
 
         cookies = {"li_at": session_cookie, "JSESSIONID": j_session_id}
 
-        proxies = {
-            'http': f'http://{proxy_string}',
-            'https': f'http://{proxy_string}'
-        }
+        if '@' in proxy_string:
+            proxies = {
+                'http': f'http://{proxy_string}',
+                'https': f'http://{proxy_string}'
+            }
+        else:
+            proxies = {
+                'http': f'http://{proxy_string}'
+            }
 
         headers = {
             "user-agent": user_agent,
@@ -1516,6 +1521,8 @@ class Linkedin(object):
 
         return data
 
+
+    # TODO: fix this logic - if request isn't actually sent, there will be a false positive
     def is_request_accepted(self, requested_li_url):
         """
         Check if a request to requested_li_url is accepted
