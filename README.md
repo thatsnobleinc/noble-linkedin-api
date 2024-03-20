@@ -47,7 +47,7 @@ pip3 install git+https://github.com/tomquirk/linkedin-api.git
 Below is a basic example of how to use linkedin_api:
 
 ```python
-from linkedin_api import Linkedin
+from src.noble_linkedin_api import Linkedin
 
 # Authenticate using any Linkedin account credentials
 api = Linkedin('reedhoffman@linkedin.com', '*******')

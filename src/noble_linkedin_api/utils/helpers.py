@@ -269,3 +269,16 @@ def format_li_url(li_url):
             li_url = 'https://' + latter_part
 
     return li_url
+
+
+def extract_public_id_from_url(url):
+
+    if url.endswith('/'):
+        # Remove the trailing '/'
+        url = url[:-1]
+
+    # Split the URL by '/' and get public id
+    parts = url.split('/')
+    public_id = parts[-1]
+
+    return public_id

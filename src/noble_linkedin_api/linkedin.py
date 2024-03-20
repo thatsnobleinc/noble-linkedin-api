@@ -1,33 +1,26 @@
 """
 Provides linkedin api-related code
 """
-import base64
 import json
 import logging
-import random
 import uuid
 from operator import itemgetter
-from time import sleep, time
-from urllib.parse import quote, urlencode
+from time import time
+from urllib.parse import urlencode
 
-from linkedin_api.client import Client
-from linkedin_api.utils.helpers import (
-    append_update_post_field_to_posts_list,
+from .client import Client
+from .utils.helpers import (
     get_id_from_urn,
     get_urn_from_raw_update,
     get_list_posts_sorted_without_promoted,
-    get_update_author_name,
-    get_update_author_profile,
-    get_update_content,
-    get_update_old,
-    get_update_url,
     parse_list_raw_posts,
     parse_list_raw_urns,
     generate_trackingId,
-    generate_trackingId_as_charString, format_li_url,
+    generate_trackingId_as_charString, format_li_url, extract_public_id_from_url,
 )
 
 logger = logging.getLogger(__name__)
+
 
 class Linkedin(object):
     """
@@ -47,37 +40,49 @@ class Linkedin(object):
     )
 
     def __init__(
-        self,
-        username,
-        password,
-        proxies,
-        headers,
-        *,
-        authenticate=True,
-        refresh_cookies=False,
-        debug=False,
-        cookies=None,
-        cookies_dir=None,
+            self,
+            proxy_string,
+            j_session_id,
+            user_agent,
+            session_cookie,
+            profile_url,
+            *,
+            refresh_cookies=False,
+            debug=False,
+            cookies_dir=None,
     ):
+
+        cookies = {"li_at": session_cookie, "JSESSIONID": j_session_id}
+
+        proxies = {
+            'http': f'http://{proxy_string}',
+            'https': f'http://{proxy_string}'
+        }
+
+        headers = {
+            "user-agent": user_agent,
+            "accept-language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+            "x-li-lang": "en_US",
+            "x-restli-protocol-version": "2.0.0",
+            "csrf-token": j_session_id.strip('"')
+        }
+
         """Constructor method"""
         self.client = Client(
             refresh_cookies=refresh_cookies,
             debug=debug,
             proxies=proxies,
             cookies_dir=cookies_dir,
-            headers=headers
+            headers=headers,
+            cookies=cookies
         )
+
+        public_id = extract_public_id_from_url(profile_url)
+        profile = self.get_profile(public_id)
+        self.urn_id = profile["profile_id"]
 
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
         self.logger = logger
-
-        if authenticate:
-            if cookies:
-                # If the cookies are expired, the API won't work anymore since
-                # `username` and `password` are not used at all in this case.
-                self.client.set_session_cookies(cookies)
-            else:
-                self.client.authenticate(username, password)
 
     def _fetch(self, uri, base_request=False, **kwargs):
         """GET request to Linkedin API"""
@@ -237,23 +242,23 @@ class Linkedin(object):
                 return []
 
             if (
-                not data_clusters.get("_type", [])
-                == "com.linkedin.restli.common.CollectionResponse"
+                    not data_clusters.get("_type", [])
+                        == "com.linkedin.restli.common.CollectionResponse"
             ):
                 return []
 
             new_elements = []
             for it in data_clusters.get("elements", []):
                 if (
-                    not it.get("_type", [])
-                    == "com.linkedin.voyager.dash.search.SearchClusterViewModel"
+                        not it.get("_type", [])
+                            == "com.linkedin.voyager.dash.search.SearchClusterViewModel"
                 ):
                     continue
 
                 for el in it.get("items", []):
                     if (
-                        not el.get("_type", [])
-                        == "com.linkedin.voyager.dash.search.SearchItem"
+                            not el.get("_type", [])
+                                == "com.linkedin.voyager.dash.search.SearchItem"
                     ):
                         continue
 
@@ -261,8 +266,8 @@ class Linkedin(object):
                     if not e:
                         continue
                     if (
-                        not e.get("_type", [])
-                        == "com.linkedin.voyager.dash.search.EntityResultViewModel"
+                            not e.get("_type", [])
+                                == "com.linkedin.voyager.dash.search.EntityResultViewModel"
                     ):
                         continue
                     new_elements.append(e)
@@ -273,8 +278,8 @@ class Linkedin(object):
             # NOTE: we could also check for the `total` returned in the response.
             # This is in data["data"]["paging"]["total"]
             if (
-                (-1 < limit <= len(results))  # if our results exceed set limit
-                or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
+                    (-1 < limit <= len(results))  # if our results exceed set limit
+                    or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
             ) or len(new_elements) == 0:
                 break
 
@@ -283,30 +288,30 @@ class Linkedin(object):
         return results
 
     def search_people(
-        self,
-        keywords=None,
-        connection_of=None,
-        network_depths=None,
-        current_company=None,
-        past_companies=None,
-        nonprofit_interests=None,
-        profile_languages=None,
-        regions=None,
-        industries=None,
-        schools=None,
-        contact_interests=None,
-        service_categories=None,
-        include_private_profiles=False,  # profiles without a public id, "Linkedin Member"
-        # Keywords filter
-        keyword_first_name=None,
-        keyword_last_name=None,
-        # `keyword_title` and `title` are the same. We kept `title` for backward compatibility. Please only use one of them.
-        keyword_title=None,
-        keyword_company=None,
-        keyword_school=None,
-        network_depth=None,  # DEPRECATED - use network_depths
-        title=None,  # DEPRECATED - use keyword_title
-        **kwargs,
+            self,
+            keywords=None,
+            connection_of=None,
+            network_depths=None,
+            current_company=None,
+            past_companies=None,
+            nonprofit_interests=None,
+            profile_languages=None,
+            regions=None,
+            industries=None,
+            schools=None,
+            contact_interests=None,
+            service_categories=None,
+            include_private_profiles=False,  # profiles without a public id, "Linkedin Member"
+            # Keywords filter
+            keyword_first_name=None,
+            keyword_last_name=None,
+            # `keyword_title` and `title` are the same. We kept `title` for backward compatibility. Please only use one of them.
+            keyword_title=None,
+            keyword_company=None,
+            keyword_school=None,
+            network_depth=None,  # DEPRECATED - use network_depths
+            title=None,  # DEPRECATED - use keyword_title
+            **kwargs,
     ):
         """Perform a LinkedIn search for people.
 
@@ -405,11 +410,11 @@ class Linkedin(object):
         results = []
         for item in data:
             if (
-                not include_private_profiles
-                and (item.get("entityCustomTrackingInfo") or {}).get(
-                    "memberDistance", None
-                )
-                == "OUT_OF_NETWORK"
+                    not include_private_profiles
+                    and (item.get("entityCustomTrackingInfo") or {}).get(
+                "memberDistance", None
+            )
+                    == "OUT_OF_NETWORK"
             ):
                 continue
             results.append(
@@ -465,20 +470,20 @@ class Linkedin(object):
         return results
 
     def search_jobs(
-        self,
-        keywords=None,
-        companies=None,
-        experience=None,
-        job_type=None,
-        job_title=None,
-        industries=None,
-        location_name=None,
-        remote=None,
-        listed_at=24 * 60 * 60,
-        distance=None,
-        limit=-1,
-        offset=0,
-        **kwargs,
+            self,
+            keywords=None,
+            companies=None,
+            experience=None,
+            job_type=None,
+            job_title=None,
+            industries=None,
+            location_name=None,
+            remote=None,
+            listed_at=24 * 60 * 60,
+            distance=None,
+            limit=-1,
+            offset=0,
+            **kwargs,
     ):
         """Perform a LinkedIn search for jobs.
 
@@ -513,7 +518,7 @@ class Linkedin(object):
         if limit is None:
             limit = -1
 
-        query = {"origin":"JOB_SEARCH_PAGE_QUERY_EXPANSION"}
+        query = {"origin": "JOB_SEARCH_PAGE_QUERY_EXPANSION"}
         if keywords:
             query["keywords"] = "KEYWORD_PLACEHOLDER"
         if location_name:
@@ -554,12 +559,12 @@ class Linkedin(object):
         #    spellCorrectionEnabled:true
         #  )"
 
-        query = str(query).replace(" ","") \
-                    .replace("'","") \
-                    .replace("KEYWORD_PLACEHOLDER", keywords or "") \
-                    .replace("LOCATION_PLACEHOLDER", location_name or "") \
-                    .replace("{","(") \
-                    .replace("}",")")
+        query = str(query).replace(" ", "") \
+            .replace("'", "") \
+            .replace("KEYWORD_PLACEHOLDER", keywords or "") \
+            .replace("LOCATION_PLACEHOLDER", location_name or "") \
+            .replace("{", "(") \
+            .replace("}", ")")
         results = []
         while True:
             # when we're close to the limit, only fetch what we need to
@@ -592,8 +597,8 @@ class Linkedin(object):
             # This is in data["data"]["paging"]["total"]
             results.extend(new_data)
             if (
-                (-1 < limit <= len(results))  # if our results exceed set limit
-                or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
+                    (-1 < limit <= len(results))  # if our results exceed set limit
+                    or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
             ) or len(elements) == 0:
                 break
 
@@ -794,7 +799,7 @@ class Linkedin(object):
         return self.search_people(connection_of=urn_id, network_depth="F")
 
     def get_company_updates(
-        self, public_id=None, urn_id=None, max_results=None, results=None
+            self, public_id=None, urn_id=None, max_results=None, results=None
     ):
         """Fetch company updates (news activity) for a given LinkedIn company.
 
@@ -823,12 +828,12 @@ class Linkedin(object):
         data = res.json()
 
         if (
-            len(data["elements"]) == 0
-            or (max_results is not None and len(results) >= max_results)
-            or (
+                len(data["elements"]) == 0
+                or (max_results is not None and len(results) >= max_results)
+                or (
                 max_results is not None
                 and len(results) / max_results >= Linkedin._MAX_REPEATED_REQUESTS
-            )
+        )
         ):
             return results
 
@@ -843,7 +848,7 @@ class Linkedin(object):
         )
 
     def get_profile_updates(
-        self, public_id=None, urn_id=None, max_results=None, results=None
+            self, public_id=None, urn_id=None, max_results=None, results=None
     ):
         """Fetch profile updates (newsfeed activity) for a given LinkedIn profile.
 
@@ -872,12 +877,12 @@ class Linkedin(object):
         data = res.json()
 
         if (
-            len(data["elements"]) == 0
-            or (max_results is not None and len(results) >= max_results)
-            or (
+                len(data["elements"]) == 0
+                or (max_results is not None and len(results) >= max_results)
+                or (
                 max_results is not None
                 and len(results) / max_results >= Linkedin._MAX_REPEATED_REQUESTS
-            )
+        )
         ):
             return results
 
@@ -1133,7 +1138,7 @@ class Linkedin(object):
         return [element["invitation"] for element in response_payload["elements"]]
 
     def reply_invitation(
-        self, invitation_entity_urn, invitation_shared_secret, action="accept"
+            self, invitation_entity_urn, invitation_shared_secret, action="accept"
     ):
         """Respond to a connection invitation. By default, accept the invitation.
 
@@ -1243,10 +1248,10 @@ class Linkedin(object):
         return res.status_code != 200
 
     def view_profile(
-        self,
-        target_profile_public_id,
-        target_profile_member_urn_id=None,
-        network_distance=None,
+            self,
+            target_profile_public_id,
+            target_profile_member_urn_id=None,
+            network_distance=None,
     ):
         """View a profile, notifying the user that you "viewed" their profile.
 
@@ -1400,7 +1405,7 @@ class Linkedin(object):
         return err
 
     def _get_list_feed_posts_and_list_feed_urns(
-        self, limit=-1, offset=0, exclude_promoted_posts=True
+            self, limit=-1, offset=0, exclude_promoted_posts=True
     ):
         """Get a list of URNs from feed sorted by 'Recent' and a list of yet
         unsorted posts, each one of them containing a dict per post.
@@ -1467,8 +1472,8 @@ class Linkedin(object):
             # NOTE: we could also check for the `total` returned in the response.
             # This is in data["data"]["paging"]["total"]
             if (
-                (limit > -1 and len(l_urns) >= limit)  # if our results exceed set limit
-                or len(l_urns) / count >= Linkedin._MAX_REPEATED_REQUESTS
+                    (limit > -1 and len(l_urns) >= limit)  # if our results exceed set limit
+                    or len(l_urns) / count >= Linkedin._MAX_REPEATED_REQUESTS
             ) or len(l_raw_urns) == 0:
                 break
 
@@ -1516,33 +1521,69 @@ class Linkedin(object):
 
         return data
 
-    def is_request_accepted(self, requested_li_url):
-        """
-        Check if a request to requested_li_url is accepted
+    # def is_request_accepted(self, requested_li_url):
+    #     """
+    #     Check if a request to requested_li_url is accepted
+    #
+    #     :param requested_li_url: linkedin profile url that a request was sent to
+    #     :type requested_li_url: str
+    #
+    #     :return: is request accepted
+    #     :rtype: boolean
+    #     """
+    #
+    #     res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
+    #                       '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
+    #
+    #     connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
+    #
+    #     if len(connection_requests) == 0:
+    #         self.logger.info("No connections in list, returning True")
+    #         return True
+    #
+    #     for connection_request in connection_requests:
+    #         url = connection_request['cardActionTarget']
+    #
+    #         if format_li_url(requested_li_url) == format_li_url(url):
+    #             self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
+    #             return False
+    #
+    #     self.logger.info('Connection not found in pending list, returning True')
+    #     return True
 
-        :param requested_li_url: linkedin profile url that a request was sent to
-        :type requested_li_url: str
+    def is_request_accepted(self, first_name, last_name, li_url):
+        """Fetch first-degree connections for a given LinkedIn profile.
 
-        :return: is request accepted
+        :param first_name: First name of requested user
+        :type first_name: str
+
+        :param last_name: Last name of requested user
+        :type last_name: str
+
+        :param li_url: linkedin url of requested user
+        :type li_url: str
+
+        :return: True if a connection exists, False if not
         :rtype: boolean
         """
 
-        res = self._fetch('/graphql?variables=(start:0,count:10,invitationType:CONNECTION)'
-                          '&queryId=voyagerRelationshipsDashSentInvitationViews.ba30426dcdbb4aa2b6e82e2305575cbb')
+        requested_public_id = extract_public_id_from_url(li_url)
+        results = self.search_people(connection_of=self.urn_id, network_depth="F", keyword_first_name=first_name,
+                                     keyword_last_name=last_name)
 
-        connection_requests = res.json()['data']['relationshipsDashSentInvitationViewsByInvitationType']['elements']
+        if len(results) == 0:
+            self.logger.info(
+                "{} {} has not accepted the connection request".format(first_name, last_name))
+            return False
+        else:
+            # Loop through the results and verify public ids match in case multiple people with same name are returned
+            for result in results:
+                result_urn_id = result['urn_id']
+                profile = self.get_profile(result_urn_id)
 
-        if len(connection_requests) == 0:
-            self.logger.info("No connections in list, returning True")
-            return True
+                if requested_public_id == profile['public_id']:
+                    return True
+                else:
+                    continue
 
-        for connection_request in connection_requests:
-            self.logger.info('Connection request for user with url {} still found in list, returning False'.format(requested_li_url))
-            url = connection_request['cardActionTarget']
-
-            if format_li_url(requested_li_url) == format_li_url(url):
-                return False
-
-        self.logger.info('Connection not found in pending list, returning True')
-        return True
-
+            return False

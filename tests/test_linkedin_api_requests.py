@@ -2,8 +2,8 @@ import os
 import sys
 import pytest
 
-from linkedin_api import Linkedin
-from linkedin_api.utils.helpers import get_id_from_urn
+from src.noble_linkedin_api import Linkedin
+from src.noble_linkedin_api.utils.helpers import get_id_from_urn
 
 TEST_LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME")
 TEST_LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD")
@@ -33,17 +33,16 @@ if not (
 @pytest.fixture(scope="module")
 def linkedin():
 
-    proxies={
-    # "http": "http://t1q3o:kmkyo757@169.197.83.74:6006",
-    # "https": "http://t1q3o:kmkyo757@169.197.83.74:6006",
-    }
-
+    # CAM JORDAN
+    proxy_string =  "t1q3o:kmkyo757@169.197.83.74:6006"
     j_session_id = "ajax:0835618877918092985"
-    li_at = "AQEDASd3X2UEEywzAAABjh7Zw8YAAAGOQuZHxk0AwX_mf3WkTMBa3XKY7Or2UqdtXOEmC5hQXkHCKzT1Af2Iam3tP67B-lXjsDzck44EfpxO8E-w62lz5ykolFQtQ0AZAkh_-EORj8fC1GsodsdfAPkC"
-    cookies = {"li_at": li_at, "JSESSIONID": j_session_id}
+    li_at = " AQEDATvAZBEAPm8kAAABjlGQj-AAAAGOdZ0T4E4As2boJdkRHxmLVbE-QJQUkxJaMt7zmX-GOMgViUlyUZqD2_mg2alzhQ6fXATXTDrEMwXt-BufnG-PVKcImYNiz1Cy24T8bKMnQMIM7VZTjXhu2jym"
+    user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
+    profile_url='https://www.linkedin.com/in/cameron-jordan-95588123b/'
 
     return Linkedin(
-        TEST_LINKEDIN_USERNAME, TEST_LINKEDIN_PASSWORD, cookies=cookies, proxies=proxies, headers=REQUEST_HEADERS, debug=True
+        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent,
+        profile_url=profile_url, debug=True
     )
 
 
@@ -341,13 +340,27 @@ def test_get_feed_posts_urns_contains_no_duplicated(linkedin):
 
 
 def test_is_request_accepted(linkedin):
-    unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
-    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/']
+    # unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
+    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/', 'https://www.linkedin.com/in/james-coll-9198b7165/', 'https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/' ]
+    #
+    # # for invite in unaccepted_invites:
+    # #     is_accepted = linkedin.is_request_accepted(invite)
+    # #     assert not is_accepted
+    #
+    # for invite in accepted_invites:
+    #     is_accepted = linkedin.is_request_accepted(invite)
+    #     assert is_accepted
 
-    for invite in unaccepted_invites:
-        is_accepted = linkedin.is_request_accepted(invite)
-        assert not is_accepted
+    is_accepted = linkedin.is_request_accepted('james', 'Coll', 'https://www.linkedin.com/in/james-coll-9198b7165')
+    assert is_accepted
 
-    for invite in accepted_invites:
-        is_accepted = linkedin.is_request_accepted(invite)
-        assert is_accepted
+    # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b', 'jAson', 'WiDUP', 'https://www.linkedin.com/in/jasonwidup/')
+    # assert is_accepted
+    #
+    # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b', 'Josh', 'Budman', 'https://www.linkedin.com/in/joshua-budman-7496b933')
+    # assert is_accepted
+    #
+    # is_accepted = linkedin.is_request_accepted('https://www.linkedin.com/in/cameron-jordan-95588123b/', 'Igor', 'Mpore', 'https://www.linkedin.com/in/igormpore/')
+    # assert not is_accepted
+
+

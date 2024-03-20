@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name="noble_linkedin_api"
+version="1.0"
+authors = [
+  { name="James Coll", email="james@thatsnoble.com" },
+]
+description = "Wrapper for linkedin voyager requests"
+requires-python = ">=3.8.10"
+dependencies = [
+    "asttokens==2.4.1",
+    "beautifulsoup4==4.12.3",
+    "certifi>=2023.11.17",
+    "charset-normalizer==3.3.2",
+    "colorama==0.4.6",
+    "exceptiongroup==1.2.0",
+    "executing==2.0.1",
+    "idna>=3.4",
+    "iniconfig==2.0.0",
+    "packaging==23.2",
+    "pluggy==1.4.0",
+    "Pygments==2.17.2",
+    "pytest>=7.4.4",
+    "requests==2.31.0",
+    "six==1.16.0",
+    "soupsieve==2.5",
+    "tomli==2.0.1",
+    "urllib3>=1.26.16"
+]

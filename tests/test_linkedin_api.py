@@ -1,8 +1,4 @@
-import os
-import sys
-import pytest
-
-from linkedin_api import Linkedin
+from src.noble_linkedin_api import Linkedin
 
 
 def test_constructor():
