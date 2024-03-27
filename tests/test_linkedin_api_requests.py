@@ -360,16 +360,15 @@ def test_get_feed_posts_urns_contains_no_duplicated(linkedin):
 
 
 def test_is_request_accepted(linkedin):
-    # unaccepted_invites = ['https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/']
-    accepted_invites = ['https://www.linkedin.com/in/joshua-budman-7496b933/', 'https://www.linkedin.com/in/james-coll-9198b7165/', 'https://www.linkedin.com/in/jasonwidup/', 'https://www.linkedin.com/in/igormpore/' ]
 
-    # for invite in unaccepted_invites:
-    #     is_accepted = linkedin.is_request_accepted(invite)
-    #     assert not is_accepted
+    is_accepted = linkedin.is_request_accepted(first_name='James', last_name='Coll', li_url='https://www.linkedin.com/in/james-coll-9198b7165/')
+    assert is_accepted
 
-    for invite in accepted_invites:
-        is_accepted = linkedin.is_request_accepted(invite)
-        assert is_accepted
+    # is_accepted = linkedin.is_request_accepted(first_name='jason', last_name='Widup', li_url='https://www.linkedin.com/in/jasonwidup')
+    # assert is_accepted
+    #
+    # is_accepted = linkedin.is_request_accepted(first_name='Igor', last_name='mpore', li_url='https://www.linkedin.com/in/igormpore/')
+    # assert is_accepted
 
 
 def test_add_connection(linkedin):
