@@ -510,10 +510,6 @@ class Linkedin(object):
             )
 
             data = res.json()
-            json_data = json.dumps(data)
-
-            with open('sample.json', 'w') as outfile:
-                outfile.write(json_data)
 
 
             new_elements = data.get("elements", [])
@@ -1694,7 +1690,6 @@ class Linkedin(object):
 
     def process_image_navigator(self,image_path):
         if image_path is not None:
-            print(image_path)
             return image_path.get('rootUrl')
         else:
             return None
@@ -1704,20 +1699,9 @@ class Linkedin(object):
         return navigator_urn
 
     def convert_navigator_id_to_vanity(self, navigator_id):
-        search_path = (f'/salesApiProfiles/(profileId:{navigator_id},'
-                       f'authType:NAME_SEARCH,authToken:UkS3)?'
-                       f'decoration=%28entityUrn%2CobjectUrn%2C'
-                       f'firstName%2ClastName%2CfullName%2Cheadline%2C'
-                       f'memberBadges%2ClatestTouchPointActivity%2C'
-                       f'pronoun%2Cdegree%2CprofileUnlockInfo%2Clocation%2C'
-                       f'listCount%2Csummary%2CsavedLead%2CdefaultPosition%2'
-                       f'CcontactInfo%2CcrmStatus%2CpendingInvitation%2Cunlocked%2C'
-                       f'flagshipProfileUrl%2CfullNamePronunciationAudio%2Cmemorialized%2'
-                       f'CnumOfConnections%2CnumOfSharedConnections%2CshowTotalConnections'
-                       f'Page%2Cpositions*%28companyName%2Ccurrent%2Cnew%2C'
-                       f'description%2CendedOn%2CposId%2CstartedOn%2Ctitle%2C'
-                       f'location%2CrichMedia*%2CcompanyUrn~fs_salesCompany%28entityUrn%2C'
-                       f'name%2CcompanyPictureDisplayImage%29%29%2CcrmManualMatched%29')
+        search_path = f'''/salesApiProfiles/(profileId:{navigator_id},authType:NAME_SEARCH,authToken:UkS3)?decoration=%28entityUrn%2CobjectUrn%2CfirstName%2ClastName%2CfullName%2Cheadline%2CmemberBadges%2ClatestTouchPointActivity%2Cpronoun%2Cdegree%2CprofileUnlockInfo%2Clocation%2ClistCount%2Csummary%2CsavedLead%2CdefaultPosition%2CcontactInfo%2CcrmStatus%2CpendingInvitation%2Cunlocked%2CflagshipProfileUrl%2CfullNamePronunciationAudio%2Cmemorialized%2CnumOfConnections%2CnumOfSharedConnections%2CshowTotalConnectionsPage%2Cpositions*%28companyName%2Ccurrent%2Cnew%2Cdescription%2CendedOn%2CposId%2CstartedOn%2Ctitle%2Clocation%2CrichMedia*%2CcompanyUrn~fs_salesCompany%28entityUrn%2Cname%2CcompanyPictureDisplayImage%29%29%2CcrmManualMatched%29'''
 
-        self._fetch(self, uri=search_path, is_navigator=True)
-
+        res = self._fetch(uri=search_path, is_navigator=True)
+        data = res.json()
+        flagship_url = data.get('flagshipProfileUrl') + '/'
+        return flagship_url

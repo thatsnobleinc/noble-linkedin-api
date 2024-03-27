@@ -379,3 +379,8 @@ def test_add_connection(linkedin):
     print(result)
 
     assert result
+
+def test_convert_navigator_id(linkedin):
+    navigator_id = 'ACwAAACvx6EBAyOcjFD55-q3m2mnvA1H9ceRaik'
+    result = linkedin.convert_navigator_id_to_vanity(navigator_id=navigator_id)
+    assert result

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name="noble_linkedin_api"
-version="1.0"
+version="1.1"
 authors = [
   { name="James Coll", email="james@thatsnoble.com" },
 ]
