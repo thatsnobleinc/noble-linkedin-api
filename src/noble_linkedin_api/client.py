@@ -23,6 +23,7 @@ class Client(object):
     # Settings for general Linkedin API calls
     LINKEDIN_BASE_URL = "https://www.linkedin.com"
     API_BASE_URL = f"{LINKEDIN_BASE_URL}/voyager/api"
+    NAVIGATOR_BASE_URL = f"{LINKEDIN_BASE_URL}/sales-api"
     # REQUEST_HEADERS = {
     #     "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.33 Safari/537.36",
     #     # "accept": "application/vnd.linkedin.normalized+json+2.1",

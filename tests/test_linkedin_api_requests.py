@@ -5,11 +5,11 @@ import pytest
 from src.noble_linkedin_api import Linkedin
 from src.noble_linkedin_api.utils.helpers import get_id_from_urn
 
-TEST_LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME")
-TEST_LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD")
-TEST_PROFILE_ID = os.getenv("TEST_PROFILE_ID")
-TEST_PUBLIC_PROFILE_ID = os.getenv("TEST_PUBLIC_PROFILE_ID")
-TEST_CONVERSATION_ID = os.getenv("TEST_CONVERSATION_ID")
+TEST_LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME", "cameron.jordan@thatsnoble.com")
+TEST_LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD", "Wordofmouth22")
+TEST_PROFILE_ID = os.getenv("TEST_PROFILE_ID", "ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc")
+TEST_PUBLIC_PROFILE_ID = os.getenv("TEST_PUBLIC_PROFILE_ID", "joshua-budman-7496b933")
+TEST_CONVERSATION_ID = os.getenv("TEST_CONVERSATION_ID", "6419123050114375168")
 
 REQUEST_HEADERS = {
     "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.33 Safari/537.36",
@@ -34,25 +34,31 @@ if not (
 def linkedin():
 
     # CAM JORDAN
-    # proxy_string =  "t1q3o:kmkyo757@169.197.83.74:6006"
-    # j_session_id = '"ajax:7253057009125232270"'
-    # li_at = "AQEDATvAZBEE08uIAAABjlzNCaQAAAGOgNmNpE4AqlUqhcUiyzDH5v0sCosOiu1UT3i-Ox678vrA9cfBwyMOLfuoy6s0gLp05IvldikbR1Cfn0R1oAF9vBY4ztjP7B4gqYXDl1__TxaKv98IsPs4T5Ga"
-    # user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
-
+    proxy_string =  "t1q3o:kmkyo757@169.197.83.74:6006"
+    j_session_id = '"ajax:7253057009125232270"'
+    li_at = "AQEFAREBAAAAAA7aKHMAAAGOexwV9QAAAY6fKJn1TgAAtHVybjpsaTplbnRlcnByaXNlQXV0aFRva2VuOmVKeGpaQUFDZm1tWklCRE5OOCtUQjBRTFN6N29ZZ1F4NGhTUHFJTVpHa0UvVnpNd0FnQnozUWE4XnVybjpsaTplbnRlcnByaXNlUHJvZmlsZToodXJuOmxpOmVudGVycHJpc2VBY2NvdW50OjI1MzQzNDk2MiwyNDUyNTQ0MTIpXnVybjpsaTptZW1iZXI6MTAwMjQ2NDI3M56uzyP-qTb_7EWSv7JeNwSqhUBcopU3OtgLZyfMjq0KaY8rmXzYYXctZdbYaUMeXpsCQ4OU2n4Mg5qje3ftlXCy3w_Wn89NG4O6IaiRyzWjCOIk4iULRaoyNjUjLrP7i7XTJNzEoLJ6blQGBxYdm194pL6LfTnxJkq25hFPvggiZPCA12pWU8MXXolVOsqkFATRp1U; UserMatchHistory=AQIhLIUyJhRMLAAAAY58Gxo3bP6Vm-y8yezeSaTlujRjDOophyF3QhJYSel2cgekBUpuoTShQX2Czfxlkr6LxSpctUR-gmrUWyqbd-2GLWSix0_6YdiGFwIL1JrSJkhgobHxw9HQ0L-5FvG2droBu-XolAMs7N_MkHmMWmTrdQ3gJF8-Nyv1aCQkKgt5wpxSRFbnOO-15fh_xfOfsHgoZ9FYlGgj0JzTYTfJSevAaNwsyJfBbxgQTZvXSCf1X2ujY-qUArn6-wJIQjj-o6aiN2j5duAU3y5Mv1Oi2f8W6P7CM43uKuK795SsCgFr_go-Q83kg7k"
+    user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
+    li_a = "AQJ2PTEmc2FsZXNfY2lkPTMyMDQ2Mjk4NiUzQSUzQTMyMDQ4MTM1NCUzQSUzQXRpZXIxJTNBJTNBMjUzNDM0OTYyurkENjcqnnQd4bOoWpOfvMfWFOU"
     # Elijiah Perez
-    proxy_string =  "proxy-server1.mirrorprofiles.com:8080"
-    j_session_id = '"ajax:0962794415086379039"'
-    li_at = "AQEDAUgtEWEBp4n-AAABjSJ8npIAAAGOdVYJiU4AcYs7aZlIIua3jQecGPV_uLAXTjwWoD78AJxutaybP2bmmBnMYqOusEHQDF43juE6zJxHcT4ISij77bSfeYiZjVsKfESWnZxQ06Hzu6hq5hfMcU__"
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
+    # proxy_string =  "proxy-server1.mirrorprofiles.com:8080"
+    # j_session_id = '"ajax:0962794415086379039"'
+    # li_at = "AQEDAUgtEWEBp4n-AAABjSJ8npIAAAGOdVYJiU4AcYs7aZlIIua3jQecGPV_uLAXTjwWoD78AJxutaybP2bmmBnMYqOusEHQDF43juE6zJxHcT4ISij77bSfeYiZjVsKfESWnZxQ06Hzu6hq5hfMcU__"
+    # user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
+
+    #Me
+    # proxy_string = "nssnzkvh:i4j9nvkq1rvv@45.196.63.230:6864"
+    # j_session_id = '"ajax:1817260717050867186"'
+    # li_at = "AQEFARABAAAAAA7XbxgAAAGOZpb7awAAAY6KwHw6TgAAs3VybjpsaTplbnRlcnByaXNlQXV0aFRva2VuOmVKeGpaQUFDdmpJMkp4RE5PeWZoRXBqL2JNc2pSaEFqeEVWNE9waWhzbEJCbTRFUkFLUkpCNGc9XnVybjpsaTplbnRlcnByaXNlUHJvZmlsZToodXJuOmxpOmVudGVycHJpc2VBY2NvdW50OjI0MjYxNTg3NCwyMjgzNTIyMTApXnVybjpsaTptZW1iZXI6MTE4MTkxMDgxJYaz5RNuuBdAuggs3e9bPt0OSa-ysEBPOLtql8rhBxAs_Xia1e4GgtJsbfrOCX1959kLPdOWvXSBYAoeYgRCKZ6vdXUBpObs0J4U90wCXJybe2aXHPq0GZ67hFuB80QbTP_FkMEbmFXs5BJ817Bdee8Gztu7lhQ6JMzKXzKmDsIlXJxLemRMRruhlWczXrqK0mCkGQ"
+    # user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
 
     return Linkedin(
-        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, debug=True
+        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, li_a=li_a, debug=True
     )
 
 
 def test_get_profile(linkedin):
-    profile = linkedin.get_profile(urn_id=TEST_PROFILE_ID)
-
+    profile = linkedin.get_profile(public_id='joshua-budman-7496b933') #urn_id=TEST_PROFILE_ID)
+    print(profile)
     assert profile
 
 
@@ -192,12 +198,22 @@ def test_search_people_by_region(linkedin):
 
 def test_search_people_by_keywords_filter(linkedin: Linkedin):
     results = linkedin.search_people(
-        keyword_first_name="John",
-        keyword_last_name="Smith",
+        connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
         include_private_profiles=True,
+        current_company=['1277', '80823467', '120271', '11595','1033'],
+        limit = 25, offset = 1
     )
     assert results
 
+def test_search_people_by_keywords_filter_navigator(linkedin: Linkedin):
+    results = linkedin.search_people_navigator(
+        connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
+        include_private_profiles=True,
+        current_company_list=['1277', '80823467', '120271', '11595','1033'],
+        limit = 25, offset = 0
+    )
+    print(results)
+    assert results
 
 def test_search_jobs(linkedin):
     # test all filters for correct syntax
@@ -356,3 +372,11 @@ def test_is_request_accepted(linkedin):
         assert is_accepted
 
 
+def test_add_connection(linkedin):
+
+    public_profile_id = 'cameronaubuchon'
+
+    result = linkedin.add_connection(profile_public_id=public_profile_id)
+    print(result)
+
+    assert result
