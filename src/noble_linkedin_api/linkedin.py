@@ -1180,7 +1180,7 @@ class Linkedin(object):
         :param profile_urn: member URN for the given LinkedIn profile
         :type profile_urn: str, optional
 
-        :return: Error state. True if error occurred
+        :return: Connection Request sent. True if request sent
         :rtype: boolean
         """
 
@@ -1232,7 +1232,7 @@ class Linkedin(object):
             headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
-        return res.status_code != 200
+        return res.status_code == 200
 
     def track(self, eventBody, eventInfo):
         payload = {"eventBody": eventBody, "eventInfo": eventInfo}
