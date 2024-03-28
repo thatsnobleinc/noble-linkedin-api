@@ -197,23 +197,25 @@ def test_search_people_by_region(linkedin):
 
 
 def test_search_people_by_keywords_filter(linkedin: Linkedin):
-    results = linkedin.search_people(
+    results, total_count = linkedin.search_people(
         connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
         include_private_profiles=True,
         current_company=['1277', '80823467', '120271', '11595','1033'],
         limit = 25, offset = 1
     )
     assert results
+    assert total_count
 
 def test_search_people_by_keywords_filter_navigator(linkedin: Linkedin):
-    results = linkedin.search_people_navigator(
+    results, total_count = linkedin.search_people_navigator(
         connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
         include_private_profiles=True,
         current_company_list=['1277', '80823467', '120271', '11595','1033'],
         limit = 25, offset = 0
     )
-    print(results)
+
     assert results
+    assert total_count
 
 def test_search_jobs(linkedin):
     # test all filters for correct syntax

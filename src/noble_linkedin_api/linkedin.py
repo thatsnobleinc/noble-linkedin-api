@@ -249,20 +249,19 @@ class Linkedin(object):
                 f".b0928897b71bd00a5a7291755dcd64f0"
             )
             data = res.json()
-            data_clusters = data.get("data", []).get("searchDashClustersByAll", [])
-            json_data = json.dumps(data)
 
-            with open('sample.json', 'w') as outfile:
-                outfile.write(json_data)
+            data_clusters = data.get("data", []).get("searchDashClustersByAll", [])
+            total_count = data_clusters.get('metadata').get('totalResultCount')
+
 
             if not data_clusters:
-                return []
+                return [], 0
 
             if (
                     not data_clusters.get("_type", [])
                         == "com.linkedin.restli.common.CollectionResponse"
             ):
-                return []
+                return [], 0
 
             new_elements = []
             for it in data_clusters.get("elements", []):
@@ -301,8 +300,9 @@ class Linkedin(object):
                 break
 
             self.logger.debug(f"results grew to {len(results)}")
+            print(total_count)
 
-        return results
+        return results, total_count
 
     def search_people(
             self,
@@ -422,7 +422,7 @@ class Linkedin(object):
         if keywords:
             params["keywords"] = keywords
 
-        data = self.search(params, **kwargs)
+        data, total_count = self.search(params, **kwargs)
 
         results = []
 
@@ -458,7 +458,7 @@ class Linkedin(object):
             if image_start_path is not None:
                 print(image_start_path.keys())
 
-        return results
+        return results, total_count
 
     def search_navigator(self, params, limit=-1, offset=0):
         """Perform a LinkedIn search.
@@ -510,9 +510,9 @@ class Linkedin(object):
             )
 
             data = res.json()
-
-
             new_elements = data.get("elements", [])
+            total_count = data.get('metadata').get('totalDisplayCount')
+
             for new_element in new_elements:
                 results.append(
                     {
@@ -537,7 +537,7 @@ class Linkedin(object):
 
             self.logger.debug(f"results grew to {len(results)}")
 
-        return results
+        return results, total_count
     def search_people_navigator(self, current_company_list, connection_of, include_private_profiles, **kwargs):
         filters = []
 
@@ -551,10 +551,10 @@ class Linkedin(object):
             filters.append(f"(type:CONNECTION_OF,values:List((id:{connection_of},selectionType:INCLUDED)))")
 
         params = {"filters": "List({})".format(",".join(filters))}
-        results = self.search_navigator(params, **kwargs)
+        results, total_count = self.search_navigator(params, **kwargs)
 
 
-        return results
+        return results, total_count
     def search_companies(self, keywords=None, **kwargs):
         """Perform a LinkedIn search for companies.
 
