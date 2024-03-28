@@ -1214,8 +1214,7 @@ class Linkedin(object):
             data=json.dumps(payload),
             headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
-        print(payload)
-        print(res)
+
         return res.status_code == 201
 
     def remove_connection(self, public_profile_id):
