@@ -1168,7 +1168,7 @@ class Linkedin(object):
             data=payload,
         )
 
-        return res.status_code == 200
+        return res.status_code != 200
 
     def add_connection(self, profile_public_id, message="", profile_urn=None):
         """Add a given profile id as a connection.
@@ -1216,7 +1216,7 @@ class Linkedin(object):
         )
         print(payload)
         print(res)
-        return res.status_code != 201
+        return res.status_code == 201
 
     def remove_connection(self, public_profile_id):
         """Remove a given profile as a connection.
