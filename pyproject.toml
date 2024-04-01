@@ -20,7 +20,7 @@ dependencies = [
     "executing==2.0.1",
     "idna>=3.4",
     "iniconfig==2.0.0",
-    "packaging==23.2",
+    "packaging>=23.2",
     "pluggy==1.4.0",
     "Pygments==2.17.2",
     "pytest>=7.4.4",

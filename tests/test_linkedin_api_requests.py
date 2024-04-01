@@ -201,7 +201,7 @@ def test_search_people_by_keywords_filter(linkedin: Linkedin):
         connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
         include_private_profiles=True,
         current_company=['1277', '80823467', '120271', '11595','1033'],
-        limit = 25, offset = 1
+        limit = 25, offset = 0
     )
     assert results
     assert total_count
