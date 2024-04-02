@@ -1,7 +1,7 @@
 import os
 import sys
 import pytest
-
+import json
 from src.noble_linkedin_api import Linkedin
 from src.noble_linkedin_api.utils.helpers import get_id_from_urn
 
@@ -51,14 +51,19 @@ def linkedin():
     # li_at = "AQEFARABAAAAAA7XbxgAAAGOZpb7awAAAY6KwHw6TgAAs3VybjpsaTplbnRlcnByaXNlQXV0aFRva2VuOmVKeGpaQUFDdmpJMkp4RE5PeWZoRXBqL2JNc2pSaEFqeEVWNE9waWhzbEJCbTRFUkFLUkpCNGc9XnVybjpsaTplbnRlcnByaXNlUHJvZmlsZToodXJuOmxpOmVudGVycHJpc2VBY2NvdW50OjI0MjYxNTg3NCwyMjgzNTIyMTApXnVybjpsaTptZW1iZXI6MTE4MTkxMDgxJYaz5RNuuBdAuggs3e9bPt0OSa-ysEBPOLtql8rhBxAs_Xia1e4GgtJsbfrOCX1959kLPdOWvXSBYAoeYgRCKZ6vdXUBpObs0J4U90wCXJybe2aXHPq0GZ67hFuB80QbTP_FkMEbmFXs5BJ817Bdee8Gztu7lhQ6JMzKXzKmDsIlXJxLemRMRruhlWczXrqK0mCkGQ"
     # user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
 
+    #member testing
+    li_at = 'AQEDAQ5x2nYC1oBwAAABjnzDBiUAAAGOoM-KJVYApZGXIeSmaknRaLUGl9X2x_-UFGm_6k23qI1iLmaC3i4qPjLmjWnW4vW2uuVrjITGwYvFp_GtiI0bVoT5Z3mKR4fi25yw9rF1lE-gvB-EjN1Z_1aW'
+    j_session_id = '"ajax:7675450021275172317"'
+
     return Linkedin(
-        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, li_a=li_a, debug=True
+        session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, debug=True
     )
 
 
 def test_get_profile(linkedin):
     profile = linkedin.get_profile(public_id='joshua-budman-7496b933') #urn_id=TEST_PROFILE_ID)
-    print(profile)
+    with open('prof_result.json', 'w') as f:
+        json.dump(profile, f)
     assert profile
 
 
@@ -69,8 +74,8 @@ def test_view_profile(linkedin):
 
 
 def test_get_profile_privacy_settings(linkedin):
-    data = linkedin.get_profile_privacy_settings(TEST_PUBLIC_PROFILE_ID)
-
+    data = linkedin.get_profile_privacy_settings('joshua-budman-7496b933')
+    print(data)
     assert data
 
 
@@ -81,8 +86,8 @@ def test_get_profile_member_badges(linkedin):
 
 
 def test_get_profile_network_info(linkedin):
-    data = linkedin.get_profile_network_info(TEST_PUBLIC_PROFILE_ID)
-
+    data = linkedin.get_profile_network_info('joshua-budman-7496b933')
+    print(data)
     assert data
 
 
@@ -386,3 +391,15 @@ def test_convert_navigator_id(linkedin):
     navigator_id = 'ACwAAACvx6EBAyOcjFD55-q3m2mnvA1H9ceRaik'
     result = linkedin.convert_navigator_id_to_vanity(navigator_id=navigator_id)
     assert result
+
+def test_connection_visibility_off(linkedin):
+    response = linkedin.garner_connection_visibility(public_profile_id='joshua-budman-7496b933')
+
+
+    assert response != True
+
+def test_connection_visibility_on(linkedin):
+    response = linkedin.garner_connection_visibility(public_profile_id='joshua-budman-7496b933')
+
+
+    assert response

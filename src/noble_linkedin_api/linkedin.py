@@ -99,6 +99,7 @@ class Linkedin(object):
             base_url = self.client.API_BASE_URL
 
         url = f"{base_url if not base_request else self.client.LINKEDIN_BASE_URL}{uri}"
+
         return self.client.session.get(url, **kwargs)
 
     def _post(self, uri, base_request=False, **kwargs):
@@ -300,7 +301,6 @@ class Linkedin(object):
                 break
 
             self.logger.debug(f"results grew to {len(results)}")
-            print(total_count)
 
         return results, total_count
 
@@ -455,8 +455,7 @@ class Linkedin(object):
             image_start_path = item.get('image').get('attributes')[0].get('detailData').get('nonEntityProfilePicture').get(
                 'vectorImage')
 
-            if image_start_path is not None:
-                print(image_start_path.keys())
+
 
         return results, total_count
 
@@ -809,7 +808,12 @@ class Linkedin(object):
         # https://www.linkedin.com/voyager/api/identity/profiles/ACoAAAKT9JQBsH7LwKaE9Myay9WcX8OVGuDq9Uw
         res = self._fetch(f"/identity/profiles/{public_id or urn_id}/profileView")
 
+
         data = res.json()
+
+        with open('prof_result.json', 'w') as f:
+            json.dump(data, f)
+
         if data and "status" in data and data["status"] != 200:
             self.logger.info("request failed: {}".format(data["message"]))
             return {}
@@ -1705,3 +1709,19 @@ class Linkedin(object):
         data = res.json()
         flagship_url = data.get('flagshipProfileUrl') + '/'
         return flagship_url
+
+    def garner_connection_visibility(self, public_profile_id):
+
+        search_path = f"/graphql?includeWebMetadata=true&variables=(vanityName:{public_profile_id})&queryId=voyagerIdentityDashProfiles.e8511bf881819fb8156472959c87f423"
+        res = self._fetch(uri=search_path, is_navigator=False)
+        data = res.json()
+
+        connection_elements = data.get('data').get('identityDashProfilesByMemberIdentity').get('elements')[0].get('connections').get('elements')
+
+
+        print(connection_elements)
+        if len(connection_elements) == 0:
+            return False
+
+        else:
+            return True
