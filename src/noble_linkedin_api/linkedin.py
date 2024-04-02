@@ -376,7 +376,7 @@ class Linkedin(object):
         if connection_of:
             filters.append(f"(key:connectionOf,value:List({connection_of}))")
         if network_depths:
-            stringify = " | ".join(network_depths)
+            stringify = ",".join(network_depths)
             filters.append(f"(key:network,value:List({stringify}))")
         elif network_depth:
             filters.append(f"(key:network,value:List({network_depth}))")

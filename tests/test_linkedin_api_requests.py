@@ -199,7 +199,7 @@ def test_search_people_by_region(linkedin):
 def test_search_people_by_keywords_filter(linkedin: Linkedin):
     results, total_count = linkedin.search_people(
         connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
-        include_private_profiles=True,
+        include_private_profiles=True, network_depths=['F','S'],
         current_company=['1277', '80823467', '120271', '11595','1033'],
         limit = 25, offset = 0
     )
