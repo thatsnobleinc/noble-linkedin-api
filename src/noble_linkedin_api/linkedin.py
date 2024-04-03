@@ -1180,7 +1180,7 @@ class Linkedin(object):
         :param profile_urn: member URN for the given LinkedIn profile
         :type profile_urn: str, optional
 
-        :return: Error state. True if error occurred
+        :return: Invitation state. True if invitation sent
         :rtype: boolean
         """
 
@@ -1215,7 +1215,7 @@ class Linkedin(object):
             headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
-        return res.status_code != 201
+        return res.status_code == 201
 
     def remove_connection(self, public_profile_id):
         """Remove a given profile as a connection.
