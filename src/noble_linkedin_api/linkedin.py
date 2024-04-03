@@ -249,7 +249,9 @@ class Linkedin(object):
                 f"includeFiltersInResponse:false))&queryId=voyagerSearchDashClusters"
                 f".b0928897b71bd00a5a7291755dcd64f0"
             )
+
             data = res.json()
+
 
             data_clusters = data.get("data", []).get("searchDashClustersByAll", [])
             total_count = data_clusters.get('metadata').get('totalResultCount')
@@ -1718,10 +1720,50 @@ class Linkedin(object):
 
         connection_elements = data.get('data').get('identityDashProfilesByMemberIdentity').get('elements')[0].get('connections').get('elements')
 
+        with open('prof_result_connected.json', 'w') as f:
+            json.dump(data, f)
 
-        print(connection_elements)
+
         if len(connection_elements) == 0:
             return False
 
         else:
             return True
+
+    def verify_connected(self, vanity_name):
+
+        """View a profile, notifying the user that you "viewed" their profile.
+
+        Provide [target_profile_member_urn_id] and [network_distance] to save 2 network requests and
+        speed up the execution of this function.
+
+        :param target_profile_public_id: public ID of a LinkedIn profile
+        :type target_profile_public_id: str
+        :param network_distance: How many degrees of separation exist e.g. 2
+        :type network_distance: int, optional
+        :param target_profile_member_urn_id: member URN id for target profile
+        :type target_profile_member_urn_id: str, optional
+
+        :return: Error state. True if error occurred
+        :rtype: boolean
+        """
+
+
+
+
+        profile_network_info = self.get_profile_network_info(
+            public_profile_id=vanity_name
+        )
+        network_distance = int(
+            profile_network_info["distance"]
+            .get("value", "DISTANCE_2")
+            .split("_")[1]
+        )
+
+        print(network_distance)
+
+        if network_distance == 1:
+            return True
+
+        else:
+            return False
