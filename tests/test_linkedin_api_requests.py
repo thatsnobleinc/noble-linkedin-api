@@ -410,12 +410,12 @@ def test_connection_visibility_on(linkedin):
     assert response
 
 def test_check_for_connected_yes_connected(linkedin):
-    response = linkedin.verify_connected(vanity_name='lev-kalashnikov-1a523a286')
+    response = linkedin.is_request_accepted(vanity_name='lev-kalashnikov-1a523a286')
 
     assert response
 
 def test_check_for_connected_not_connected(linkedin):
 
-    response = linkedin.verify_connected(vanity_name='xiaowang7')
+    response = linkedin.is_request_accepted(vanity_name='xiaowang7')
 
     assert response is False

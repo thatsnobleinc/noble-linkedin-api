@@ -1344,7 +1344,7 @@ class Linkedin(object):
         )
 
         print(res)
-        return res.status_code != 201
+        return res.status_code == 201
 
     def remove_connection(self, public_profile_id):
         """Remove a given profile as a connection.
@@ -1651,40 +1651,6 @@ class Linkedin(object):
         return data
 
 
-    def is_request_accepted(self, first_name, last_name, li_url):
-        """Check if a connection request was accepted.
-
-        :param first_name: First name of requested user
-        :type first_name: str
-
-        :param last_name: Last name of requested user
-        :type last_name: str
-
-        :param li_url: linkedin url of requested user
-        :type li_url: str
-
-        :return: True if a connection exists, False if not
-        :rtype: boolean
-        """
-
-        requested_public_id = extract_public_id_from_url(li_url)
-        results = self.search_people(keyword_first_name=first_name, keyword_last_name=last_name,
-                                     network_depths="F", include_private_profiles=True)
-
-        if len(results) == 0:
-            self.logger.info(
-                "{} {} has not accepted the connection request".format(first_name, last_name))
-            return False
-        else:
-            # Loop through the results and verify public ids match in case multiple people with same name are returned
-            for result in results:
-                result_urn_id = result['urn_id']
-                profile = self.get_profile(result_urn_id)
-
-                if requested_public_id == profile['public_id']:
-                    return True
-                else:
-                    continue
 
 
 
@@ -1730,7 +1696,7 @@ class Linkedin(object):
         else:
             return True
 
-    def verify_connected(self, vanity_name):
+    def is_request_accepted(self, vanity_name):
 
         """View a profile, notifying the user that you "viewed" their profile.
 
