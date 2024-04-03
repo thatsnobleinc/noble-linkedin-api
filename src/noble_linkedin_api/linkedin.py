@@ -7,6 +7,7 @@ import uuid
 from operator import itemgetter
 from time import time
 from urllib.parse import urlencode
+import pprint
 
 from .client import Client
 from .utils.helpers import (
@@ -49,9 +50,13 @@ class Linkedin(object):
             refresh_cookies=False,
             debug=False,
             cookies_dir=None,
+            li_a=None
     ):
 
         cookies = {"li_at": session_cookie, "JSESSIONID": j_session_id}
+
+        if 'li_a' is not None:
+            cookies['li_a'] = li_a
 
         if '@' in proxy_string:
             proxies = {
@@ -71,6 +76,7 @@ class Linkedin(object):
             "csrf-token": j_session_id.strip('"')
         }
 
+
         """Constructor method"""
         self.client = Client(
             refresh_cookies=refresh_cookies,
@@ -84,9 +90,16 @@ class Linkedin(object):
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
         self.logger = logger
 
-    def _fetch(self, uri, base_request=False, **kwargs):
+    def _fetch(self, uri, base_request=False, is_navigator=False, **kwargs):
         """GET request to Linkedin API"""
-        url = f"{self.client.API_BASE_URL if not base_request else self.client.LINKEDIN_BASE_URL}{uri}"
+
+        if is_navigator:
+            base_url = self.client.NAVIGATOR_BASE_URL
+        else:
+            base_url = self.client.API_BASE_URL
+
+        url = f"{base_url if not base_request else self.client.LINKEDIN_BASE_URL}{uri}"
+
         return self.client.session.get(url, **kwargs)
 
     def _post(self, uri, base_request=False, **kwargs):
@@ -216,6 +229,7 @@ class Linkedin(object):
                 "q": "all",
                 "start": len(results) + offset,
                 "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true,kcardTypes->PROFILE|COMPANY)",
+                "includeWebMetadata": "true"
             }
             default_params.update(params)
 
@@ -230,22 +244,27 @@ class Linkedin(object):
                 f"query:("
                 f"{keywords}"
                 f"flagshipSearchIntent:SEARCH_SRP,"
+                #f"flagshipSearchIntent:ORGANIZATIONS_PEOPLE_ALUMNI,"
                 f"queryParameters:{default_params['filters']},"
-                f"includeFiltersInResponse:false))&=&queryId=voyagerSearchDashClusters"
+                f"includeFiltersInResponse:false))&queryId=voyagerSearchDashClusters"
                 f".b0928897b71bd00a5a7291755dcd64f0"
             )
+
             data = res.json()
 
+
             data_clusters = data.get("data", []).get("searchDashClustersByAll", [])
+            total_count = data_clusters.get('metadata').get('totalResultCount')
+
 
             if not data_clusters:
-                return []
+                return [], 0
 
             if (
                     not data_clusters.get("_type", [])
                         == "com.linkedin.restli.common.CollectionResponse"
             ):
-                return []
+                return [], 0
 
             new_elements = []
             for it in data_clusters.get("elements", []):
@@ -285,7 +304,7 @@ class Linkedin(object):
 
             self.logger.debug(f"results grew to {len(results)}")
 
-        return results
+        return results, total_count
 
     def search_people(
             self,
@@ -359,7 +378,7 @@ class Linkedin(object):
         if connection_of:
             filters.append(f"(key:connectionOf,value:List({connection_of}))")
         if network_depths:
-            stringify = " | ".join(network_depths)
+            stringify = ",".join(network_depths)
             filters.append(f"(key:network,value:List({stringify}))")
         elif network_depth:
             filters.append(f"(key:network,value:List({network_depth}))")
@@ -370,7 +389,7 @@ class Linkedin(object):
             stringify = " | ".join(industries)
             filters.append(f"(key:industry,value:List({stringify}))")
         if current_company:
-            stringify = " | ".join(current_company)
+            stringify = ",".join(current_company)
             filters.append(f"(key:currentCompany,value:List({stringify}))")
         if past_companies:
             stringify = " | ".join(past_companies)
@@ -405,9 +424,10 @@ class Linkedin(object):
         if keywords:
             params["keywords"] = keywords
 
-        data = self.search(params, **kwargs)
+        data, total_count = self.search(params, **kwargs)
 
         results = []
+
         for item in data:
             if (
                     not include_private_profiles
@@ -428,11 +448,114 @@ class Linkedin(object):
                     "jobtitle": (item.get("primarySubtitle") or {}).get("text", None),
                     "location": (item.get("secondarySubtitle") or {}).get("text", None),
                     "name": (item.get("title") or {}).get("text", None),
+                    "linkedin_url": (item.get("navigationUrl") or {}),
+                    'image_uri': self.process_image(item.get('image').get('attributes')[0].get('detailData').get('nonEntityProfilePicture').get('vectorImage'))
                 }
+
             )
 
-        return results
+            image_start_path = item.get('image').get('attributes')[0].get('detailData').get('nonEntityProfilePicture').get(
+                'vectorImage')
 
+
+
+        return results, total_count
+
+    def search_navigator(self, params, limit=-1, offset=0):
+        """Perform a LinkedIn search.
+
+        :param params: Search parameters (see code)
+        :type params: dict
+        :param limit: Maximum length of the returned list, defaults to -1 (no limit)
+        :type limit: int, optional
+        :param offset: Index to start searching from
+        :type offset: int, optional
+
+
+        :return: List of search results
+        :rtype: list
+        """
+        count = Linkedin._MAX_SEARCH_COUNT
+        if limit is None:
+            limit = -1
+
+        results = []
+        while True:
+            # when we're close to the limit, only fetch what we need to
+            if limit > -1 and limit - len(results) < count:
+                count = limit - len(results)
+            default_params = {
+                "count": limit,
+                "filters": "List()",
+                "origin": "GLOBAL_SEARCH_HEADER",
+                "q": "all",
+                "start": limit * offset,
+                "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true,kcardTypes->PROFILE|COMPANY)",
+                "includeWebMetadata": "true"
+            }
+            default_params.update(params)
+
+            keywords = (
+                f"keywords:{default_params['keywords']},"
+                if "keywords" in default_params
+                else ""
+            )
+
+            res = self._fetch(
+                f"/salesApiLeadSearch?q=searchQuery&"
+                f"query=(spellCorrectionEnabled:true,recentSearchParam:(id:3271330498,doLogHistory:true),"
+                f"filters:{default_params['filters']})&"
+                f"decorationId=com.linkedin.sales.deco.desktop.searchv2.LeadSearchResult-14&"
+                f"start={default_params['start']}&count={default_params['count']}&"
+                f"trackingParam=(sessionId:sMhGi0QPTPevAWOwCX7DfA%3D%3D)", is_navigator=True
+            )
+
+            data = res.json()
+            new_elements = data.get("elements", [])
+            total_count = data.get('metadata').get('totalDisplayCount')
+
+            for new_element in new_elements:
+                results.append(
+                    {
+                        "navigator_id": self.extract_navigator_urn(new_element.get('entityUrn')),
+                        "distance": (new_element.get("degree") or {}),
+                        "jobtitle": (new_element.get("currentPositions")[0] or {}).get('title'),
+                        "company": (new_element.get("currentPositions")[0] or {}).get('companyName'),
+                        "location": (new_element.get("geoRegion") or {}),
+                        "name": (new_element.get("fullName") or {}),
+                        'image_uri': self.process_image_navigator(new_element.get('profilePictureDisplayImage'))
+                    })
+
+
+            # break the loop if we're done searching
+            # NOTE: we could also check for the `total` returned in the response.
+            # This is in data["data"]["paging"]["total"]
+            if (
+                    (-1 < limit <= len(results))  # if our results exceed set limit
+                    or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
+            ) or len(new_elements) == 0:
+                break
+
+            self.logger.debug(f"results grew to {len(results)}")
+
+        return results, total_count
+    def search_people_navigator(self, current_company_list, connection_of, include_private_profiles, **kwargs):
+        filters = []
+
+        if current_company_list:
+            stringify = []
+            for current_company in current_company_list:
+                stringify.append(f'(id:urn%3Ali%3Aorganization%3A{current_company},selectionType:INCLUDED,parent:(id:0))')
+            filters.append(f"(type:CURRENT_COMPANY,values:List({','.join(stringify)}))")
+
+        if connection_of:
+            filters.append(f"(type:CONNECTION_OF,values:List((id:{connection_of},selectionType:INCLUDED)))")
+
+        params = {"filters": "List({})".format(",".join(filters))}
+        results, total_count = self.search_navigator(params, **kwargs)
+
+
+        return results, total_count
     def search_companies(self, keywords=None, **kwargs):
         """Perform a LinkedIn search for companies.
 
@@ -687,7 +810,12 @@ class Linkedin(object):
         # https://www.linkedin.com/voyager/api/identity/profiles/ACoAAAKT9JQBsH7LwKaE9Myay9WcX8OVGuDq9Uw
         res = self._fetch(f"/identity/profiles/{public_id or urn_id}/profileView")
 
+
         data = res.json()
+
+        with open('prof_result.json', 'w') as f:
+            json.dump(data, f)
+
         if data and "status" in data and data["status"] != 200:
             self.logger.info("request failed: {}".format(data["message"]))
             return {}
@@ -1180,7 +1308,7 @@ class Linkedin(object):
         :param profile_urn: member URN for the given LinkedIn profile
         :type profile_urn: str, optional
 
-        :return: Invitation state. True if invitation sent
+        :return: Error state. True if error occurred
         :rtype: boolean
         """
 
@@ -1215,6 +1343,7 @@ class Linkedin(object):
             headers={"accept": "application/vnd.linkedin.normalized+json+2.1"},
         )
 
+        print(res)
         return res.status_code == 201
 
     def remove_connection(self, public_profile_id):
@@ -1522,39 +1651,85 @@ class Linkedin(object):
         return data
 
 
-    def is_request_accepted(self, first_name, last_name, li_url):
-        """Check if a connection request was accepted.
 
-        :param first_name: First name of requested user
-        :type first_name: str
 
-        :param last_name: Last name of requested user
-        :type last_name: str
 
-        :param li_url: linkedin url of requested user
-        :type li_url: str
+    def process_image(self, vector_image):
+        if vector_image is not None:
+            return vector_image.get('artifacts')[0].get('fileIdentifyingUrlPathSegment')
+        else:
+            return None
 
-        :return: True if a connection exists, False if not
+    def process_image_navigator(self,image_path):
+        if image_path is not None:
+            return image_path.get('rootUrl')
+        else:
+            return None
+
+    def extract_navigator_urn(self, full_entity_urn):
+        navigator_urn = full_entity_urn.split(':(')[-1].split(',')[0]
+        return navigator_urn
+
+    def convert_navigator_id_to_vanity(self, navigator_id):
+        search_path = f'''/salesApiProfiles/(profileId:{navigator_id},authType:NAME_SEARCH,authToken:UkS3)?decoration=%28entityUrn%2CobjectUrn%2CfirstName%2ClastName%2CfullName%2Cheadline%2CmemberBadges%2ClatestTouchPointActivity%2Cpronoun%2Cdegree%2CprofileUnlockInfo%2Clocation%2ClistCount%2Csummary%2CsavedLead%2CdefaultPosition%2CcontactInfo%2CcrmStatus%2CpendingInvitation%2Cunlocked%2CflagshipProfileUrl%2CfullNamePronunciationAudio%2Cmemorialized%2CnumOfConnections%2CnumOfSharedConnections%2CshowTotalConnectionsPage%2Cpositions*%28companyName%2Ccurrent%2Cnew%2Cdescription%2CendedOn%2CposId%2CstartedOn%2Ctitle%2Clocation%2CrichMedia*%2CcompanyUrn~fs_salesCompany%28entityUrn%2Cname%2CcompanyPictureDisplayImage%29%29%2CcrmManualMatched%29'''
+
+        res = self._fetch(uri=search_path, is_navigator=True)
+        data = res.json()
+        flagship_url = data.get('flagshipProfileUrl') + '/'
+        return flagship_url
+
+    def garner_connection_visibility(self, public_profile_id):
+
+        search_path = f"/graphql?includeWebMetadata=true&variables=(vanityName:{public_profile_id})&queryId=voyagerIdentityDashProfiles.e8511bf881819fb8156472959c87f423"
+        res = self._fetch(uri=search_path, is_navigator=False)
+        data = res.json()
+
+        connection_elements = data.get('data').get('identityDashProfilesByMemberIdentity').get('elements')[0].get('connections').get('elements')
+
+        with open('prof_result_connected.json', 'w') as f:
+            json.dump(data, f)
+
+
+        if len(connection_elements) == 0:
+            return False
+
+        else:
+            return True
+
+    def is_request_accepted(self, vanity_name):
+
+        """View a profile, notifying the user that you "viewed" their profile.
+
+        Provide [target_profile_member_urn_id] and [network_distance] to save 2 network requests and
+        speed up the execution of this function.
+
+        :param target_profile_public_id: public ID of a LinkedIn profile
+        :type target_profile_public_id: str
+        :param network_distance: How many degrees of separation exist e.g. 2
+        :type network_distance: int, optional
+        :param target_profile_member_urn_id: member URN id for target profile
+        :type target_profile_member_urn_id: str, optional
+
+        :return: Error state. True if error occurred
         :rtype: boolean
         """
 
-        requested_public_id = extract_public_id_from_url(li_url)
-        results = self.search_people(keyword_first_name=first_name, keyword_last_name=last_name,
-                                     network_depths="F", include_private_profiles=True)
 
-        if len(results) == 0:
-            self.logger.info(
-                "{} {} has not accepted the connection request".format(first_name, last_name))
-            return False
+
+
+        profile_network_info = self.get_profile_network_info(
+            public_profile_id=vanity_name
+        )
+        network_distance = int(
+            profile_network_info["distance"]
+            .get("value", "DISTANCE_2")
+            .split("_")[1]
+        )
+
+        print(network_distance)
+
+        if network_distance == 1:
+            return True
+
         else:
-            # Loop through the results and verify public ids match in case multiple people with same name are returned
-            for result in results:
-                result_urn_id = result['urn_id']
-                profile = self.get_profile(result_urn_id)
-
-                if requested_public_id == profile['public_id']:
-                    return True
-                else:
-                    continue
-
             return False
