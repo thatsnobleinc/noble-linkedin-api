@@ -53,7 +53,7 @@ def linkedin():
     # user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
 
     #member testing
-    li_at = 'AQEDAQcLc-kA3povAAABjqUNlUAAAAGOyRoZQE0AlvjHdHHcb9RiFWvsDlLxF4HNwcxFpovD3uHGKusAoodfpuVa8-DY3ZnWxsan0U3FVrAx7uqG--SB49tTGs2gApTvEumOPlpvMI7ssMOP2hCkGuI9'
+    li_at = 'AQEDAQcLc-kALnOoAAABjqlh4E8AAAGOzW5kT04ASa_PZkGHLpgpIXWTv8K7AMUyOz1LRblWHMHagBMPn_TsjylO13ng0-h0i2HqWZ9zoUGr4_Wivl77fz5ZpAR5iygV0B7-2BAODiuf7p0n1rqVBScH'
     j_session_id = '"ajax:1817260717050867186"'
 
     return Linkedin(
@@ -203,10 +203,10 @@ def test_search_people_by_region(linkedin):
 
 
 def test_search_people_by_keywords_filter(linkedin: Linkedin):
-    fin_list = random.sample(BIG_CO_LIST, 750)
+    fin_list = random.sample(BIG_CO_LIST, 100)
 
     results, total_count = linkedin.search_people(
-        connection_of='ACoAAAcLc-kBGrxZVGc1BYcF3trNSWWUXQUjswc',
+        connection_of='ACoAAACGQVMBsscF5BA6JTumJDTAt_4TT5fhyAg',
         include_private_profiles=True, network_depths=['F','S'],
         current_company=fin_list,
         limit = 25, offset = 0
