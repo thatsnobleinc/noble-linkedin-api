@@ -1686,8 +1686,6 @@ class Linkedin(object):
 
         connection_elements = data.get('data').get('identityDashProfilesByMemberIdentity').get('elements')[0].get('connections').get('elements')
 
-        with open('prof_result_connected.json', 'w') as f:
-            json.dump(data, f)
 
 
         if len(connection_elements) == 0:
