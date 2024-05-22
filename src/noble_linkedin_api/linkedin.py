@@ -1654,11 +1654,12 @@ class Linkedin(object):
         navigator_urn = full_entity_urn.split(':(')[-1].split(',')[0]
         return navigator_urn
 
-    def convert_navigator_id_to_vanity(self, navigator_id):
+    async def convert_navigator_id_to_vanity(self, navigator_id):
         search_path = f'''/salesApiProfiles/(profileId:{navigator_id},authType:NAME_SEARCH,authToken:UkS3)?decoration=%28entityUrn%2CobjectUrn%2CfirstName%2ClastName%2CfullName%2Cheadline%2CmemberBadges%2ClatestTouchPointActivity%2Cpronoun%2Cdegree%2CprofileUnlockInfo%2Clocation%2ClistCount%2Csummary%2CsavedLead%2CdefaultPosition%2CcontactInfo%2CcrmStatus%2CpendingInvitation%2Cunlocked%2CflagshipProfileUrl%2CfullNamePronunciationAudio%2Cmemorialized%2CnumOfConnections%2CnumOfSharedConnections%2CshowTotalConnectionsPage%2Cpositions*%28companyName%2Ccurrent%2Cnew%2Cdescription%2CendedOn%2CposId%2CstartedOn%2Ctitle%2Clocation%2CrichMedia*%2CcompanyUrn~fs_salesCompany%28entityUrn%2Cname%2CcompanyPictureDisplayImage%29%29%2CcrmManualMatched%29'''
 
         res = self._fetch(uri=search_path, is_navigator=True)
         data = res.json()
+        print(res.text)
         flagship_url = data.get('flagshipProfileUrl') + '/'
         return flagship_url
 
