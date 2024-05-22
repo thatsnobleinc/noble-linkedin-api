@@ -1659,7 +1659,6 @@ class Linkedin(object):
 
         res = self._fetch(uri=search_path, is_navigator=True)
         data = res.json()
-        print(res.text)
         flagship_url = data.get('flagshipProfileUrl') + '/'
         return flagship_url
 
