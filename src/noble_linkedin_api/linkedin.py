@@ -851,6 +851,7 @@ class Linkedin(object):
 
         # massage [experience] data
         experience = data["positionView"]["elements"]
+
         for item in experience:
             if "company" in item and "miniCompany" in item["company"]:
                 if "logo" in item["company"]["miniCompany"]:
@@ -859,6 +860,9 @@ class Linkedin(object):
                     )
                     if logo:
                         item["companyLogoUrl"] = logo["rootUrl"]
+
+                if "universalName" in item["company"]["miniCompany"]:
+                    item["universalName"] = item["company"]["miniCompany"]["universalName"]
                 del item["company"]["miniCompany"]
 
         profile["experience"] = experience
