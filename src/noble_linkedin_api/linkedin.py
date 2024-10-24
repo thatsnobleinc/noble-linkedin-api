@@ -1092,8 +1092,6 @@ class Linkedin(object):
 
         data = res.json()
 
-        with open('company_result.json', 'w') as f:
-            json.dump(data, f)
 
         if data and "status" in data and data["status"] != 200:
             self.logger.info("request failed: {}".format(data["message"]))
@@ -1685,7 +1683,7 @@ class Linkedin(object):
 
 
         connection_elements = data.get('data').get('identityDashProfilesByMemberIdentity').get('elements')[0].get('connections').get('elements')
-        print(connection_elements)
+
 
 
         if len(connection_elements) == 0:
