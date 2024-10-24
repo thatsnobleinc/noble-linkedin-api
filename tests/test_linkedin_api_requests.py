@@ -5,6 +5,7 @@ import pytest
 import json
 from src.noble_linkedin_api import Linkedin
 from src.noble_linkedin_api.utils.helpers import get_id_from_urn
+import asyncio
 
 TEST_LINKEDIN_USERNAME = os.getenv("LINKEDIN_USERNAME", "cameron.jordan@thatsnoble.com")
 TEST_LINKEDIN_PASSWORD = os.getenv("LINKEDIN_PASSWORD", "Wordofmouth22")
@@ -38,9 +39,9 @@ def linkedin():
     # CAM JORDAN
     proxy_string =  "t1q3o:kmkyo757@169.197.83.74:6006"
     j_session_id = '"ajax:7253057009125232270"'
-    li_at = "AQEDATvAZBEFBRHUAAABjopgF9IAAAGOrmyb0k4Al-jkvSUqV3ayCzZgMd3Vz7y8QKiWw-lfVdyf21irApOvoqu20vxEUXLr1cF2cJVqL9HqCU1B3cCL1tSFBHu3T7RH6urlinD-iZ_YCsPTVxx1XzL_"
+    li_at = "AQEFAREBAAAAAA-kvVoAAAGPh1G68QAAAY-rXj7xTgAAtHVybjpsaTplbnRlcnByaXNlQXV0aFRva2VuOmVKeGpaQUFDZm1tWklCRE5OOCtUQjBRTFN6N29ZZ1F4NGhTUHFJTVpHa0UvVnpNd0FnQnozUWE4XnVybjpsaTplbnRlcnByaXNlUHJvZmlsZToodXJuOmxpOmVudGVycHJpc2VBY2NvdW50OjI1MzQzNDk2MiwyNDUyNTQ0MTIpXnVybjpsaTptZW1iZXI6MTAwMjQ2NDI3MzSd21lqKMlzpOPGY9l6vAaJDNdd4GKdsD6t0cYIdaqfvFbJJj9Q8ML78szDCwZnEaiD3nhz2hJ1AohEacVoPZdKu98J3yA3Q9s3jQ1Y663f_qSAcq_fMo-84miDxf5G8fHs2J1hgkCXB7xE3EsRFgwAImZKZaNFX9w2c7m_IEYxiK9GuOH63GrimUarJZ31gqkNFQM"
     user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
-    li_a = "AQJ2PTEmc2FsZXNfY2lkPTMyMDQ2Mjk4NiUzQSUzQTMyMDQ4MTM1NCUzQSUzQXRpZXIxJTNBJTNBMjUzNDM0OTYyurkENjcqnnQd4bOoWpOfvMfWFOU"
+    li_a = "AQJ2PTEmc2FsZXNfY2lkPTMyMDQ2Mjk4NiUzQSUzQTMyMDQ4MTM1NCUzQSUzQXRpZXIxJTNBJTNBMjUzNDM0OTYyCKE7UNIXtnDWMCiPuXChuQL0OdI"
     # Elijiah Perez
     # proxy_string =  "proxy-server1.mirrorprofiles.com:8080"
     # j_session_id = '"ajax:0962794415086379039"'
@@ -53,13 +54,15 @@ def linkedin():
     # li_at = "AQEFARABAAAAAA7XbxgAAAGOZpb7awAAAY6KwHw6TgAAs3VybjpsaTplbnRlcnByaXNlQXV0aFRva2VuOmVKeGpaQUFDdmpJMkp4RE5PeWZoRXBqL2JNc2pSaEFqeEVWNE9waWhzbEJCbTRFUkFLUkpCNGc9XnVybjpsaTplbnRlcnByaXNlUHJvZmlsZToodXJuOmxpOmVudGVycHJpc2VBY2NvdW50OjI0MjYxNTg3NCwyMjgzNTIyMTApXnVybjpsaTptZW1iZXI6MTE4MTkxMDgxJYaz5RNuuBdAuggs3e9bPt0OSa-ysEBPOLtql8rhBxAs_Xia1e4GgtJsbfrOCX1959kLPdOWvXSBYAoeYgRCKZ6vdXUBpObs0J4U90wCXJybe2aXHPq0GZ67hFuB80QbTP_FkMEbmFXs5BJ817Bdee8Gztu7lhQ6JMzKXzKmDsIlXJxLemRMRruhlWczXrqK0mCkGQ"
     # user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
 
-    #member testing
+
     li_at = 'AQEDAQcLc-kBipdqAAABkVvYr-IAAAGS2ZKSZ1YAPPNZGGc1Mcot9gbd1mQaLvJYn-dwqNUFhA7wR8ibmeSJrCt5v2I8q02dIvV3syzjsGB7hK31NjXcjk4_x0c_Z3DpVOWVLun0h19K0nAwhR-mLoNn'
     j_session_id = '"ajax:4806019117758015778"'
     #li_a = 'AQJ2PTEmc2FsZXNfY2lkPTI1MDAwMDYxMCUzQSUzQTI1MDA2MjI1OCUzQSUzQXRpZXIxJTNBJTNBMjQyNjE1ODc0lBAOk1l83UTVJiACB9psQuc_lbY'
 
     return Linkedin(
         session_cookie=li_at, proxy_string=proxy_string, j_session_id=j_session_id, user_agent=user_agent, debug=True, li_a=li_a
+
+
     )
 
 
@@ -397,8 +400,11 @@ def test_add_connection(linkedin):
     assert result
 
 def test_convert_navigator_id(linkedin):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     navigator_id = 'ACwAAACvx6EBAyOcjFD55-q3m2mnvA1H9ceRaik'
-    result = linkedin.convert_navigator_id_to_vanity(navigator_id=navigator_id)
+    result = loop.run_until_complete(linkedin.convert_navigator_id_to_vanity(navigator_id=navigator_id))
+    loop.close()
     assert result
 
 def test_connection_visibility_off(linkedin):

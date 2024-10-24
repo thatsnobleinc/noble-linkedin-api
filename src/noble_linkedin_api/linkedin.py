@@ -475,68 +475,52 @@ class Linkedin(object):
         :return: List of search results
         :rtype: list
         """
-        count = Linkedin._MAX_SEARCH_COUNT
+
         if limit is None:
             limit = -1
 
         results = []
-        while True:
-            # when we're close to the limit, only fetch what we need to
-            if limit > -1 and limit - len(results) < count:
-                count = limit - len(results)
-            default_params = {
-                "count": limit,
-                "filters": "List()",
-                "origin": "GLOBAL_SEARCH_HEADER",
-                "q": "all",
-                "start": limit * offset,
-                "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true,kcardTypes->PROFILE|COMPANY)",
-                "includeWebMetadata": "true"
-            }
-            default_params.update(params)
 
-            keywords = (
-                f"keywords:{default_params['keywords']},"
-                if "keywords" in default_params
-                else ""
-            )
-
-            res = self._fetch(
-                f"/salesApiLeadSearch?q=searchQuery&"
-                f"query=(spellCorrectionEnabled:true,recentSearchParam:(id:3271330498,doLogHistory:true),"
-                f"filters:{default_params['filters']})&"
-                f"decorationId=com.linkedin.sales.deco.desktop.searchv2.LeadSearchResult-14&"
-                f"start={default_params['start']}&count={default_params['count']}&"
-                f"trackingParam=(sessionId:sMhGi0QPTPevAWOwCX7DfA%3D%3D)", is_navigator=True
-            )
-
-            data = res.json()
-            new_elements = data.get("elements", [])
-            total_count = data.get('metadata').get('totalDisplayCount')
-
-            for new_element in new_elements:
-                results.append(
-                    {
-                        "navigator_id": self.extract_navigator_urn(new_element.get('entityUrn')),
-                        "distance": (new_element.get("degree") or {}),
-                        "jobtitle": (new_element.get("currentPositions")[0] or {}).get('title'),
-                        "company": (new_element.get("currentPositions")[0] or {}).get('companyName'),
-                        "location": (new_element.get("geoRegion") or {}),
-                        "name": (new_element.get("fullName") or {}),
-                        'image_uri': self.process_image_navigator(new_element.get('profilePictureDisplayImage'))
-                    })
+        default_params = {
+            "count": limit,
+            "filters": "List()",
+            "origin": "GLOBAL_SEARCH_HEADER",
+            "q": "all",
+            "start": limit * offset,
+            "queryContext": "List(spellCorrectionEnabled->true,relatedSearchesEnabled->true,kcardTypes->PROFILE|COMPANY)",
+            "includeWebMetadata": "true"
+        }
+        default_params.update(params)
 
 
-            # break the loop if we're done searching
-            # NOTE: we could also check for the `total` returned in the response.
-            # This is in data["data"]["paging"]["total"]
-            if (
-                    (-1 < limit <= len(results))  # if our results exceed set limit
-                    or len(results) / count >= Linkedin._MAX_REPEATED_REQUESTS
-            ) or len(new_elements) == 0:
-                break
+        res = self._fetch(
+            f"/salesApiLeadSearch?q=searchQuery&"
+            f"query=(spellCorrectionEnabled:true,recentSearchParam:(id:3271330498,doLogHistory:true),"
+            f"filters:{default_params['filters']})&"
+            f"decorationId=com.linkedin.sales.deco.desktop.searchv2.LeadSearchResult-14&"
+            f"start={default_params['start']}&count={default_params['count']}&"
+            f"trackingParam=(sessionId:sMhGi0QPTPevAWOwCX7DfA%3D%3D)", is_navigator=True
+        )
 
-            self.logger.debug(f"results grew to {len(results)}")
+        data = res.json()
+        new_elements = data.get("elements", [])
+        total_count = data.get('metadata').get('totalDisplayCount')
+
+
+
+
+        for new_element in new_elements:
+            results.append(
+                {
+                    "navigator_id": self.extract_navigator_urn(new_element.get('entityUrn')),
+                    "distance": (new_element.get("degree") or {}),
+                    "jobtitle": (new_element.get("currentPositions")[0] or {}).get('title'),
+                    "company": (new_element.get("currentPositions")[0] or {}).get('companyName'),
+                    "location": (new_element.get("geoRegion") or {}),
+                    "name": (new_element.get("fullName") or {}),
+                    'image_uri': self.process_image_navigator(new_element.get('profilePictureDisplayImage'))
+                })
+
 
         return results, total_count
     def search_people_navigator(self, current_company_list, connection_of, include_private_profiles, **kwargs):
@@ -1667,7 +1651,7 @@ class Linkedin(object):
         navigator_urn = full_entity_urn.split(':(')[-1].split(',')[0]
         return navigator_urn
 
-    def convert_navigator_id_to_vanity(self, navigator_id):
+    async def convert_navigator_id_to_vanity(self, navigator_id):
         search_path = f'''/salesApiProfiles/(profileId:{navigator_id},authType:NAME_SEARCH,authToken:UkS3)?decoration=%28entityUrn%2CobjectUrn%2CfirstName%2ClastName%2CfullName%2Cheadline%2CmemberBadges%2ClatestTouchPointActivity%2Cpronoun%2Cdegree%2CprofileUnlockInfo%2Clocation%2ClistCount%2Csummary%2CsavedLead%2CdefaultPosition%2CcontactInfo%2CcrmStatus%2CpendingInvitation%2Cunlocked%2CflagshipProfileUrl%2CfullNamePronunciationAudio%2Cmemorialized%2CnumOfConnections%2CnumOfSharedConnections%2CshowTotalConnectionsPage%2Cpositions*%28companyName%2Ccurrent%2Cnew%2Cdescription%2CendedOn%2CposId%2CstartedOn%2Ctitle%2Clocation%2CrichMedia*%2CcompanyUrn~fs_salesCompany%28entityUrn%2Cname%2CcompanyPictureDisplayImage%29%29%2CcrmManualMatched%29'''
 
         res = self._fetch(uri=search_path, is_navigator=True)
