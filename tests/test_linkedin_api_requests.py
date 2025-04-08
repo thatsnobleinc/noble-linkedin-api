@@ -55,8 +55,8 @@ def linkedin():
     # user_agent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.110 Safari/537.36"
 
 
-    li_at = 'AQEDAQcLc-kBipdqAAABkVvYr-IAAAGS2ZKSZ1YAPPNZGGc1Mcot9gbd1mQaLvJYn-dwqNUFhA7wR8ibmeSJrCt5v2I8q02dIvV3syzjsGB7hK31NjXcjk4_x0c_Z3DpVOWVLun0h19K0nAwhR-mLoNn'
-    j_session_id = '"ajax:4806019117758015778"'
+    li_at = 'AQEDAQcLc-kFzPLkAAABlg-jsV0AAAGWM7A1XU4AFR6m8jhaNlodP7y4tYs46vZ8x-5erN-Rt5GMUh1SOMK2-ER85ev9WqmHC52lpo4tZiu3PUINCAdsWDfNF0BLImR2QwTYDzWK2KJESpBe2Nba0rAz'
+    j_session_id = '"ajax:3235308972301584689"'
     #li_a = 'AQJ2PTEmc2FsZXNfY2lkPTI1MDAwMDYxMCUzQSUzQTI1MDA2MjI1OCUzQSUzQXRpZXIxJTNBJTNBMjQyNjE1ODc0lBAOk1l83UTVJiACB9psQuc_lbY'
 
     return Linkedin(
@@ -67,7 +67,7 @@ def linkedin():
 
 
 def test_get_profile(linkedin):
-    profile = linkedin.get_profile(public_id='bianca-nastase-423070208') #urn_id=TEST_PROFILE_ID)
+    profile = linkedin.get_profile(public_id='venkchandran') #urn_id=TEST_PROFILE_ID)
     with open('prof_result.json', 'w') as f:
         json.dump(profile, f)
     assert profile
