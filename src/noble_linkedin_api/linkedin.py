@@ -902,10 +902,15 @@ class Linkedin(object):
         profile["projects"] = projects
 
         #massage skills data
-        skills = data["skillView"]["elements"]
-        for item in skills:
-            del item["entityUrn"]
-        profile["skills"] = skills
+        try:
+            skills = self.get_profile_skills(public_id=public_id, urn_id=urn_id)
+            profile["skills"] = skills
+
+        except:
+            skills = data["skillView"]["elements"]
+            for item in skills:
+                del item["entityUrn"]
+            profile["skills"] = skills
 
         return profile
 

@@ -67,7 +67,7 @@ def linkedin():
 
 
 def test_get_profile(linkedin):
-    profile = linkedin.get_profile(public_id='venkchandran') #urn_id=TEST_PROFILE_ID)
+    profile = linkedin.get_profile(public_id='joshua-budman-7496b933') #urn_id=TEST_PROFILE_ID)
     with open('prof_result.json', 'w') as f:
         json.dump(profile, f)
     assert profile
